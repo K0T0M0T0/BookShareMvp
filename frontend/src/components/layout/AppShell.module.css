@@ -1,0 +1,34 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.brand a {
+  font-weight: 700;
+  text-decoration: none;
+}
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+.main {
+  padding: 1rem;
+}

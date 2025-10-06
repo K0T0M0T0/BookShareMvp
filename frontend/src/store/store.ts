@@ -2,17 +2,19 @@
 File: src/store/store.ts
 ========================= */
 import { configureStore } from "@reduxjs/toolkit";
-import usersReducer from "./usersSlice";
-import sessionReducer from "./sessionSlice";
-import booksReducer from "./booksSlice";
+import usersReducer from "./Slices/usersSlice";
+import sessionReducer from "./Slices/sessionSlice";
+import booksReducer from "./Slices/booksSlice";
+import readingListsReducer from "./Slices/readingListsSlice";
 
-// Central Redux store
 export const store = configureStore({
   reducer: {
     users: usersReducer,
     session: sessionReducer,
     books: booksReducer,
+    readingLists: readingListsReducer,
   },
 });
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

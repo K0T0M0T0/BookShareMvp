@@ -8,7 +8,7 @@ import { store } from "./store/store";
 import App from "./App";
 import "./styles/globals.css";
 
-// Entry point: wraps app with Redux store provider
+// Application entry. Wrap whole app with Redux provider.
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>

@@ -1,0 +1,48 @@
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.readonly {
+  cursor: default;
+}
+
+.star {
+  width: 24px;
+  height: 24px;
+  stroke: #d1d5db; /* gray-300 */
+  fill: transparent;
+}
+
+.filled {
+  stroke: #f59e0b; /* amber-500 */
+  fill: #f59e0b;
+}
+
+.glow {
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.65));
+}
+
+/* Applied to stars up to the selected index (border change) */
+.highlight {
+  stroke: #f59e0b; /* amber-500 */
+  stroke-width: 2.2px;
+}
+
+.label {
+  margin-left: 6px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
