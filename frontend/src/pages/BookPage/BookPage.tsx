@@ -6,9 +6,9 @@ import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import { removeBook, editBook, rateBook } from "../../store/Slices/booksSlice";
-import AddChapterForm from "../../components/books/AddChapterForm";
-import styles from "../../components/books/BookPage.module.css";
-import RatingStars from "../../components/books/RatingStars";
+import AddChapterForm from "./AddChapterForm/AddChapterForm";
+import styles from "./BookPage.module.css";
+import RatingStars from "../../components/bookcard/components/RatingStars";
 
 export default function BookPage() {
   const { id } = useParams();
@@ -61,7 +61,9 @@ export default function BookPage() {
             <AddChapterForm bookId={book.id} />
             <button
               onClick={() => {
-                dispatch(editBook({ id: book.id, data: { status: "finished" } }));
+                dispatch(
+                  editBook({ id: book.id, data: { status: "finished" } })
+                );
               }}
             >
               Mark as Finished

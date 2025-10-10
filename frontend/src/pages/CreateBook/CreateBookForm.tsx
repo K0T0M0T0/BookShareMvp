@@ -8,17 +8,26 @@ import type { AppDispatch, RootState } from "../../store/store";
 import styles from "./CreateBookForm.module.css";
 
 export default function CreateBookForm() {
+  // Redux
   const dispatch = useDispatch<AppDispatch>();
   const session = useSelector((s: RootState) => s.session);
+  // Form state
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
   const [genres, setGenres] = useState("");
   const [tags, setTags] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
-
+  // Handlers
+  //sumbit
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Basic validation
+    if (!title.trim() || !author.trim()) {
+      alert("Title and Author are required.");
+      return;
+    }
+    // call addBook action
     dispatch(
       addBook({
         rating: 0,
@@ -38,6 +47,7 @@ export default function CreateBookForm() {
         uploaderId: session.userId,
       })
     );
+    // Reset form
     setTitle("");
     setAuthor("");
     setDescription("");
@@ -52,9 +62,13 @@ export default function CreateBookForm() {
         <h2 className={styles.title}>Create Book</h2>
         <p className={styles.subtitle}>Add a new book to your library</p>
         {coverUrl ? (
-          <img className={`${styles.preview} ${styles.full}`} src={coverUrl} alt="Cover preview" />
+          <img
+            className={`${styles.bookCover} ${styles.full}`}
+            src={coverUrl}
+            alt="Cover preview"
+          />
         ) : (
-          <div className={`${styles.preview} ${styles.full}`} />
+          <div className={`${styles.bookCover} ${styles.full}`} />
         )}
         <form className={styles.form} onSubmit={submit}>
           <div className={styles.full}>
@@ -114,7 +128,9 @@ export default function CreateBookForm() {
             />
           </div>
           <div className={`${styles.btnRow} ${styles.full}`}>
-            <button className={styles.button} type="submit">Create</button>
+            <button className={styles.button} type="submit">
+              Create
+            </button>
           </div>
         </form>
       </div>

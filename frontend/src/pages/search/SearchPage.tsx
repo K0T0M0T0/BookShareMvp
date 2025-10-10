@@ -4,7 +4,8 @@ File: src/pages/search/SearchPage.tsx
 import React from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
-import { BookCard } from "../../components/books/BookCard";
+import { BookCard } from "../../components/bookcard/BookCard";
+import Styles from "./SearchPage.module.scss";
 
 export default function SearchPage() {
   const books = useSelector((s: RootState) => s.books);
@@ -23,6 +24,12 @@ export default function SearchPage() {
   return (
     <section>
       <h2>Search Books</h2>
+      <div className={Styles.searchbar}>
+        {
+          //it should be compoennt
+          //there would be a option to set a filter by genres, tags they woukld have a check boxes, and also set statuses (completed, ongoing, dropped) of the book, and minimal or max chapters
+        }
+      </div>
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}

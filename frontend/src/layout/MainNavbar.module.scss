@@ -1,0 +1,71 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  // Header Section
+  .header {
+    .btn {
+      height: 100%; // ✅ full height like theme button
+      width: 8rem;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      border-radius: 0;
+      font-weight: 500;
+      padding: 0 15px; // horizontal padding only
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: var(--accent);
+      }
+    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    height: 60px; // ✅ defines total header height
+
+    .leftSection {
+      padding-left: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    // Navigation Bar
+    .middleSection {
+      display: flex;
+      height: 100%; // ✅ fill full header height
+      padding: 0;
+      margin: 0;
+
+      .NavbarBtn {
+        height: 100%; // ✅ full height like theme button
+        font-weight: 500;
+
+        // Add right border except for the last button
+        &:not(:last-child) {
+          border-right: 2px solid var(--text);
+        }
+
+        &:hover {
+          background: var(--accent);
+        }
+      }
+    }
+    .rightSection {
+      display: flex;
+      align-items: center;
+      height: 100%; // ✅ matches header height
+    }
+  }
+
+  // Action Buttons (e.g., theme toggle, login)
+
+  // Main content area
+  .main {
+    padding: 1rem;
+  }
+}

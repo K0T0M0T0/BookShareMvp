@@ -1,6 +1,11 @@
 /* =========================
 File: src/styles/globals.css
 ========================= */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
 :root {
   --bg: #ffffff;
   --text: #0f172a;
@@ -31,7 +36,7 @@ textarea,
 select,
 button {
   font-size: 1rem;
-  padding: 0.5rem;
+
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.08);
 }

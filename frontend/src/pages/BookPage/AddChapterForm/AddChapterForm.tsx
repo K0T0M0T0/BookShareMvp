@@ -4,8 +4,8 @@ File: src/components/books/AddChapterForm.tsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addChapter } from "../../store/Slices/booksSlice";
-import type { AppDispatch } from "../../store/store";
+import { addChapter } from "../../../store/Slices/booksSlice";
+import type { AppDispatch } from "../../../store/store";
 import styles from "./AddChapterForm.module.css";
 
 export default function AddChapterForm({ bookId }: { bookId: string }) {
@@ -55,7 +55,9 @@ export default function AddChapterForm({ bookId }: { bookId: string }) {
               />
             </div>
             <div className={styles.actions}>
-              <button className={styles.submitBtn} type="submit">Add</button>
+              <button className={styles.submitBtn} type="submit">
+                Add
+              </button>
             </div>
           </form>
         </div>

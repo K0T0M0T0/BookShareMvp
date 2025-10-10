@@ -1,10 +1,10 @@
 /* =========================
 File: src/pages/Home.tsx
 ========================= */
-import React from "react";
+
 import { useSelector } from "react-redux";
-import type { RootState } from "../store/store";
-import BookCardSmall from "../components/books/BookCardSmall";
+import type { RootState } from "../../store/store";
+import BookCardSmall from "./components/updateBookCard.tsx/BookCardUpdate";
 
 // Home page shows recent updates: books with newest chapters
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
+          gridTemplateRows: "repeat(auto-fit,minmax(200px,1fr))",
           gap: "1rem",
         }}
       >

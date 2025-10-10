@@ -1,10 +1,10 @@
 /* =========================
 File: src/pages/books/ChapterPage.tsx
 ========================= */
-import React from "react";
+
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
+import type { RootState } from "../../../store/store";
 
 export default function ChapterPage() {
   const { id, cid } = useParams();
