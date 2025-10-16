@@ -4,7 +4,7 @@ File: src/components/books/BookCardSmall.tsx
 
 import { Link } from "react-router-dom";
 import type { Book } from "../../../../store/Slices/booksSlice";
-import styles from "./BookCardUpdate.module.css";
+import styles from "./BookCardUpdate.module.scss";
 
 export default function BookCardSmall({ book }: { book: Book }) {
   return (

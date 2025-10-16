@@ -2,7 +2,7 @@
 File: src/components/layout/AppShell.tsx
 ========================= */
 import React from "react";
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MainNavbar.module.scss";
 import { useSelector, useDispatch } from "react-redux";
@@ -72,7 +72,7 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
           </button>
           {session.userId ? (
             <button className={styles.btn} onClick={onLogout}>
-              Logout
+              <LogOut size={"35px"} />
             </button>
           ) : (
             <button className={styles.btn} onClick={() => navigate("/login")}>

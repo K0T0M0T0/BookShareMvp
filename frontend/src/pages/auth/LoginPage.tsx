@@ -4,11 +4,13 @@ File: src/pages/auth/LoginPage.tsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/Slices/sessionSlice";
+import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../../store/store";
 import styles from "./auth.module.css";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -23,7 +25,7 @@ export default function LoginPage() {
   };
 
   return (
-    <form className={styles.form} onSubmit={submit}>
+    <form className={styles.loginform} onSubmit={submit}>
       <h3>Login</h3>
       <input
         value={email}
@@ -37,6 +39,9 @@ export default function LoginPage() {
         placeholder="Password"
       />
       <button>Login</button>
+      <button type="button" onClick={() => navigate("/register")}>
+        Register
+      </button>
     </form>
   );
 }

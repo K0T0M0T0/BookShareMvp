@@ -24,7 +24,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <form className={styles.form} onSubmit={submit}>
+    <form className={styles.loginform} onSubmit={submit}>
       <h3>Register</h3>
       <input
         value={username}
