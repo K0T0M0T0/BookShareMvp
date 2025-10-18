@@ -10,7 +10,7 @@ import Styles from "./SearchPage.module.scss";
 export default function SearchPage() {
   const books = useSelector((s: RootState) => s.books);
   const [q, setQ] = React.useState("");
-  const [filter, setFilter] = React.useState("");
+  const [filter] = React.useState("");
 
   const results = books
     .filter(

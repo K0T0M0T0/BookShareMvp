@@ -1,0 +1,311 @@
+
+/* BookCard.module.scss */
+.card {
+  direction: ltr;
+  background: transparent;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07), 0 1.5px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  transition: box-shadow 0.2s, transform 0.15s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  --card-height: 300px;
+  --cover-width: calc(var(--card-height) * 2 / 3);
+  --panel-max-width: 18rem;
+  display: grid;
+  grid-template-columns: var(--cover-width) 0px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  position: relative;
+  height: var(--card-height);
+  overflow: visible;
+  z-index: 0;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: calc(var(--panel-max-width) * -1);
+    background: var(--card-bg);
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 0.18s ease-in-out;
+    z-index: 0;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.12),
+      0 2px 8px 0 rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    z-index: 10;
+  }
+
+  &:focus,
+  &:focus-visible {
+    z-index: 10;
+  }
+
+  .coverWrap {
+    position: relative;
+    width: var(--cover-width);
+    height: var(--card-height);
+    overflow: hidden;
+    border-radius: 14px;
+    flex-shrink: 0;
+    z-index: 1;
+
+    .coverImg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+      display: block;
+    }
+
+    .coverPlaceholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #eef2ff, #e5e7eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .bookmarkBtn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.6);
+      }
+
+      &.active {
+        background: #10b981;
+      }
+
+      svg {
+        stroke: #fff;
+        fill: currentColor;
+        width: 22px;
+        height: 22px;
+      }
+    }
+
+    .titleBar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      padding: 10px 12px;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.65),
+        rgba(0, 0, 0, 0)
+      );
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .ratingRow {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .title {
+        font-size: 1.05rem;
+        margin: 0;
+        color: #fff;
+      }
+
+      .chapters {
+        font-size: 0.85rem;
+        color: #f1f1f1;
+        margin: 0;
+      }
+    }
+
+    &:hover ~ .detailsPanel {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    &:hover ~ .bgOverlay {
+      opacity: 1;
+    }
+  }
+
+  .detailsPanel {
+    position: absolute;
+    top: 0;
+    left: var(--cover-width);
+    height: 100%;
+    width: var(--panel-max-width);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 160ms ease 40ms, transform 220ms ease;
+    transform: translateX(-8px);
+    z-index: 1;
+    pointer-events: none;
+
+    .detailsInner {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .headerRow {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .panelTitle {
+          margin: 0;
+          font-size: 1.05rem;
+          color: var(--text-primary);
+        }
+
+        .panelAuthor {
+          margin: 0;
+          color: var(--text-secondary);
+          font-size: 0.95rem;
+        }
+      }
+
+      .panelRating {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .infoRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .panelDescription {
+        color: var(--text-primary);
+        font-size: 0.94rem;
+        line-height: 1.5;
+        max-height: 8.5em;
+        overflow: hidden;
+      }
+    }
+  }
+
+  .bgOverlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: calc(var(--panel-max-width) * -1);
+    border-radius: 14px;
+    background: var(--card-bg);
+    opacity: 0;
+    transition: opacity 0.18s ease-in-out;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .footerLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .genres {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+
+    .genreTag {
+      background-color: var(--accent-light);
+      color: var(--accent-text);
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--accent-color);
+        color: #fff;
+      }
+    }
+  }
+
+  .status {
+    text-transform: capitalize;
+    font-weight: 600;
+
+    &.finished {
+      color: #28a745;
+    }
+
+    &.ongoing {
+      color: #ffc107;
+    }
+
+    &.dropped {
+      color: #dc3545;
+    }
+  }
+
+  .footer,
+  .author,
+  .description,
+  .button,
+  .baseInfo {
+    display: none;
+  }
+}
+
+// Theme variables
+:root[data-theme="light"] {
+  --card-bg: #ffffff;
+  --text-primary: #1e1e1e;
+  --text-secondary: #555;
+  --accent-color: #2b7a78;
+  --accent-hover: #205c5a;
+  --accent-light: #d2f1f0;
+  --accent-text: #134e4a;
+}
+
+:root[data-theme="dark"] {
+  --card-bg: #1c1c1c;
+  --text-primary: #f2f2f2;
+  --text-secondary: #b0b0b0;
+  --accent-color: #3cd2c2;
+  --accent-hover: #2b9d91;
+  --accent-light: #124643;
+  --accent-text: #d0fdf9;
+}

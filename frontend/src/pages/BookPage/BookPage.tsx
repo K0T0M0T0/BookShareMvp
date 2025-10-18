@@ -39,17 +39,20 @@ export default function BookPage() {
         </div>
       </div>
 
-      <div>
-        <h3>Chapters</h3>
-        <ol>
+      <div className={styles.chaptersSection}>
+        <div className={styles.chaptersHeader}>
+          <h3>Chapters</h3>
+          <span>{book.chapters.length} total</span>
+        </div>
+        <ol className={styles.chaptersList}>
           {book.chapters.map((c) => (
-            <li key={c.id}>
+            <li key={c.id} className={styles.chaptersItem}>
               <Link to={`/books/${book.id}/ch/${c.id}`}>
                 {c.index}. {c.title}
               </Link>
               {c.createdAt && (
                 <span style={{ marginLeft: 8, color: "var(--text-secondary)" }}>
-                  · {new Date(c.createdAt).toLocaleString()}
+                  {new Date(c.createdAt).toLocaleString()}
                 </span>
               )}
             </li>

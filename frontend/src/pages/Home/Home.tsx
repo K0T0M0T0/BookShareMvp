@@ -1,68 +1,106 @@
-/* =========================
-File: src/pages/Home.tsx
-========================= */
-
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
-import BookCardSmall from "./components/updateBookCard.tsx/BookCardUpdate";
+import { BookCard } from "../../components/bookcard/BookCard";
+import styles from "./Home.module.scss";
 
 export default function Home() {
-  const books = useSelector((s: RootState) => s.books);
-  const readlist = useSelector((s: RootState) => s.users || []);
+  // Active tab for mobile view — "user" or "global"
+  const [activeTab, setActiveTab] = useState<"user" | "global">("user");
 
-  // sort books by chapter updates (most updated first)
-  const recent = [...books]
+  // Fetch global state values
+  const books = useSelector((s: RootState) => s.books); // All books in store
+  const readingLists = useSelector((s: RootState) => s.readingLists); // User reading list data
+  const session = useSelector((s: RootState) => s.session); // Current user session info
+  const userId = session.userId; // Current logged-in user ID
+
+  /* =========================
+     Create "Recent Updates" list
+     - Sort books by most chapters
+     - Limit to top 9
+  ========================= */
+  const recentAll = [...books]
     .sort((a, b) => b.chapterAmount - a.chapterAmount)
     .slice(0, 9);
 
-  // filter books that exist in user's readlist
-  const userUpdates = recent.filter((b) => readlist.includes(b.id));
+  /* =========================
+     Create "Your Updates" list
+     - Filter only books in user's reading list
+     - Then intersect with recent updates
+  ========================= */
+  const userEntries = readingLists.filter((e) => e.userId === userId);
+  const userBookIds = userEntries.map((e) => e.bookId);
+  const userUpdates = recentAll.filter((b) => userBookIds.includes(b.id));
+  const recent = recentAll.filter((b) => !userBookIds.includes(b.id));
 
   return (
-    <section
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 2fr",
-        gap: "2rem",
-        alignItems: "start",
-      }}
-    >
-      {/* Left side: user's readlist updates */}
-      <div>
-        <h2>Your Readlist Updates</h2>
-        {userUpdates.length > 0 ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "1rem",
-            }}
-          >
-            {userUpdates.map((b) => (
-              <BookCardSmall key={b.id} book={b} />
-            ))}
-          </div>
-        ) : (
-          <p style={{ color: "#6b7280" }}>
-            No recent updates in your readlist yet.
-          </p>
-        )}
+    <section className={styles.homeContainer}>
+      {/* =========================
+          Top Tabs (Mobile only)
+          - Allows switching between "Your" and "All" updates
+      ========================= */}
+      <div className={styles.topTabs}>
+        <button
+          className={`${styles.tabButton} ${
+            activeTab === "user" ? styles.active : ""
+          }`}
+          onClick={() => setActiveTab("user")}
+        >
+          Your Updates
+        </button>
+
+        <button
+          className={`${styles.tabButton} ${
+            activeTab === "global" ? styles.active : ""
+          }`}
+          onClick={() => setActiveTab("global")}
+        >
+          All Updates
+        </button>
       </div>
 
-      {/* Right side: general updates */}
-      <div>
-        <h2>Recent Updates</h2>
-        <p>Books with newly added chapters</p>
+      {/* =========================
+          Main Content Grid
+          - User updates on the left
+          - Global updates on the right
+      ========================= */}
+      <div className={styles.contentGrid}>
+        {/* ===== Left Column: Personalized (User) Updates ===== */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: "1rem",
-          }}
+          className={`${styles.userUpdates} ${
+            activeTab === "user" ? styles.visible : styles.hidden
+          }`}
         >
-          {recent.map((b) => (
-            <BookCardSmall key={b.id} book={b} />
-          ))}
+          <h2>Your Readlist Updates</h2>
+
+          {/* If user has updates, show BookCards. Otherwise show placeholder */}
+          {userUpdates.length > 0 ? (
+            <div className={styles.cardGrid}>
+              {userUpdates.map((b) => (
+                <BookCard key={b.id} book={b} />
+              ))}
+            </div>
+          ) : (
+            <p className={styles.emptyText}>
+              No recent updates in your reading lists.
+            </p>
+          )}
+        </div>
+
+        {/* ===== Right Column: Global Updates ===== */}
+        <div
+          className={`${styles.globalUpdates} ${
+            activeTab === "global" ? styles.visible : styles.hidden
+          }`}
+        >
+          <h2>Recent Updates</h2>
+          <p className={styles.subtitle}></p>
+
+          <div className={styles.cardGrid}>
+            {recent.map((b) => (
+              <BookCard key={b.id} book={b} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

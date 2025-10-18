@@ -8,6 +8,8 @@ import type { RootState, AppDispatch } from "../../store/store";
 import { updateProfile } from "../../store/Slices/usersSlice";
 import { Check, X } from "lucide-react";
 import styles from "./ProfilePage.module.scss";
+import CollectionsOverview from "../collections/components/CollectionsOverview";
+import AddCollectionForm from "./components/AddCollectionForm";
 
 export default function ProfilePage() {
   const session = useSelector((s: RootState) => s.session);
@@ -81,63 +83,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <UserLists userId={me.id} username={me.username} />
+      <div className={styles.collections}>
+        <CollectionsOverview userId={me.id} />
+        <AddCollectionForm userId={me.id} />
+      </div>
     </section>
-  );
-}
-
-/* =========================
-User Collections (Cards)
-========================= */
-
-function UserLists({ userId, username }: { userId: string; username: string }) {
-  const key = `lists_${userId}`;
-  const [lists, setLists] = React.useState<{ name: string; ids: string[] }[]>(
-    JSON.parse(localStorage.getItem(key) || "[]")
-  );
-  const [name, setName] = React.useState("");
-
-  const add = () => {
-    if (!name.trim()) return;
-    const next = [...lists, { name, ids: [] }];
-    setLists(next);
-    localStorage.setItem(key, JSON.stringify(next));
-    setName("");
-  };
-
-  // random placeholder book covers (for demo)
-  const covers = [
-    "https://picsum.photos/200/300?1",
-    "https://picsum.photos/200/300?2",
-    "https://picsum.photos/200/300?3",
-    "https://picsum.photos/200/300?4",
-  ];
-
-  return (
-    <div className={styles.collections}>
-      <h3>Your Collections</h3>
-
-      <div className={styles.collectionGrid}>
-        {lists.map((l, i) => (
-          <div key={i} className={styles.collectionCard}>
-            <img src={covers[i % covers.length]} alt={l.name} />
-            <div className={styles.cardContent}>
-              <h4>{l.name}</h4>
-              <p>by {username}</p>
-              <p>{l.ids.length} books</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.addCollection}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Collection name"
-        />
-        <button onClick={add}>Create</button>
-      </div>
-    </div>
   );
 }

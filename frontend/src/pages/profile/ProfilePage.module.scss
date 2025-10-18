@@ -119,6 +119,8 @@
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       transition: transform 0.2s ease;
+      text-decoration: none;
+      color: inherit;
 
       &:hover {
         transform: translateY(-4px);
@@ -143,6 +145,94 @@
           color: var(--text-light);
         }
       }
+    }
+  }
+
+  .defaultLists {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 2rem;
+
+    h3 {
+      margin-bottom: 1rem;
+    }
+
+    .collectionGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .collectionCard {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+
+      &:hover {
+        transform: translateY(-4px);
+      }
+
+      .cardContent {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        h4 {
+          margin: 0;
+          font-size: 1.05rem;
+        }
+
+        p {
+          font-size: 0.9rem;
+          color: var(--text-light);
+        }
+      }
+    }
+  }
+
+  /* Add collection form styling */
+  :global(.addCollection) {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+
+    .addCollectionRow {
+      display: flex;
+      gap: 0.5rem;
+
+      input {
+        flex: 1;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      button {
+        padding: 0.5rem 0.9rem;
+        border-radius: 0.5rem;
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+      }
+    }
+
+    .hint {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-light);
     }
   }
 }

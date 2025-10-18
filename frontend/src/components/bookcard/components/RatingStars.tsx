@@ -1,4 +1,3 @@
-import React from "react";
 import { Star } from "lucide-react";
 import styles from "./RatingStars.module.css";
 
@@ -10,7 +9,13 @@ type Props = {
   selected?: number; // which star index is selected for glow (1..5)
 };
 
-export default function RatingStars({ value, onChange, size = 24, showLabel, selected }: Props) {
+export default function RatingStars({
+  value,
+  onChange,
+  size = 24,
+  showLabel,
+  selected,
+}: Props) {
   const stars = [1, 2, 3, 4, 5];
   return (
     <div
@@ -20,7 +25,8 @@ export default function RatingStars({ value, onChange, size = 24, showLabel, sel
     >
       {stars.map((n) => {
         const filled = value >= n - 1e-6; // avoid float issues
-        const isHighlighted = typeof selected === "number" ? n <= selected : false;
+        const isHighlighted =
+          typeof selected === "number" ? n <= selected : false;
         const ButtonTag: any = onChange ? "button" : "div";
         return (
           <ButtonTag
@@ -32,7 +38,9 @@ export default function RatingStars({ value, onChange, size = 24, showLabel, sel
             role={onChange ? "radio" : undefined}
           >
             <Star
-              className={`${styles.star} ${filled ? styles.filled : ""} ${isHighlighted ? styles.glow : ""} ${isHighlighted ? styles.highlight : ""}`}
+              className={`${styles.star} ${filled ? styles.filled : ""} ${
+                isHighlighted ? styles.glow : ""
+              } ${isHighlighted ? styles.highlight : ""}`}
               size={size}
               aria-hidden="true"
             />
@@ -43,5 +51,3 @@ export default function RatingStars({ value, onChange, size = 24, showLabel, sel
     </div>
   );
 }
-
-

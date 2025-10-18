@@ -59,3 +59,36 @@
   display: flex;
   gap: 1rem;
 }
+
+/* Chapters section styling */
+.chaptersSection {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.chaptersHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.chaptersList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chaptersItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.chaptersItem:last-child {
+  border-bottom: none;
+}

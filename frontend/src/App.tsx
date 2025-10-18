@@ -11,6 +11,7 @@ import ChapterPage from "./pages/BookPage/ChapterPage/ChapterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/profile/profilePage";
+import CollectionsPage from "./pages/collections/collections";
 
 import SearchPage from "./pages/search/SearchPage";
 
@@ -27,6 +28,8 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/collections" element={<CollectionsPage />} />
+          <Route path="/collections/:id" element={<CollectionsPage />} />
           <Route path="/search" element={<SearchPage />} />
         </Routes>
       </MainNavbar>
