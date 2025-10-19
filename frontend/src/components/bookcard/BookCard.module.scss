@@ -1,56 +1,60 @@
+/* =========================
+File: src/components/bookcard/BookCard.module.scss
+========================= */
 
-/* BookCard.module.scss */
+/* =========================
+   Main Card Container
+   - Responsive and centered on all devices
+   - Expands slightly on hover
+========================= */
 .card {
   direction: ltr;
   background: transparent;
   border-radius: 14px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07), 0 1.5px 4px rgba(0, 0, 0, 0.04);
-  margin-bottom: 0.5rem;
   color: var(--text-primary);
-  transition: box-shadow 0.2s, transform 0.15s ease-out;
   border: 1px solid rgba(0, 0, 0, 0.04);
-  --card-height: 300px;
-  --cover-width: calc(var(--card-height) * 2 / 3);
-  --panel-max-width: 18rem;
-  display: grid;
-  grid-template-columns: var(--cover-width) 0px;
+  transition: box-shadow 0.2s, transform 0.15s ease-out;
   cursor: pointer;
   user-select: none;
-  outline: none;
   position: relative;
-  height: var(--card-height);
   overflow: visible;
   z-index: 0;
+  aspect-ratio: 2 / 3;
+  --card-height: 300px;
+  height: var(--card-height);
+  padding: 0;
+  display: grid;
+  grid-template-columns: var(--cover-width) 0px;
+  margin: 0 auto 0.9rem; /* ✅ center horizontally & spacing below */
+  max-width: 230px; /* ✅ base size for normal screens */
 
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Background overlay on hover or expansion */
   &::after {
     content: "";
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
-    right: calc(var(--panel-max-width) * -1);
     background: var(--card-bg);
     border-radius: 14px;
-    opacity: 0;
+    opacity: 0; // stays hidden
     transition: opacity 0.18s ease-in-out;
     z-index: 0;
   }
 
-  &:hover {
-    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.12),
-      0 2px 8px 0 rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-    z-index: 10;
-  }
-
-  &:focus,
-  &:focus-visible {
-    z-index: 10;
-  }
-
+  /* =========================
+     Cover Section
+     - Contains book cover, placeholder, bookmark button, and title
+  ========================= */
   .coverWrap {
     position: relative;
-    width: var(--cover-width);
+    width: var(--cover-width, 100%);
     height: var(--card-height);
     overflow: hidden;
     border-radius: 14px;
@@ -72,7 +76,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
       color: var(--text-secondary);
       font-weight: 600;
     }
@@ -85,17 +88,14 @@
       background: rgba(0, 0, 0, 0.45);
       color: #fff;
       border: none;
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.6);
-      }
+      transition: background 0.2s ease;
 
       &.active {
         background: #10b981;
@@ -124,12 +124,10 @@
       color: #fff;
       display: flex;
       flex-direction: column;
-      gap: 6px;
 
       .ratingRow {
         display: flex;
         align-items: center;
-        gap: 6px;
       }
 
       .title {
@@ -144,27 +142,20 @@
         margin: 0;
       }
     }
-
-    &:hover ~ .detailsPanel {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: auto;
-    }
-
-    &:hover ~ .bgOverlay {
-      opacity: 1;
-    }
   }
 
+  /* =========================
+     Hidden Expansion Panel (for details)
+     - Currently inactive, but styled for future animation
+  ========================= */
   .detailsPanel {
     position: absolute;
     top: 0;
     left: var(--cover-width);
     height: 100%;
-    width: var(--panel-max-width);
+    width: var(--panel-max-width, 18rem);
     overflow: hidden;
     opacity: 0;
-    transition: opacity 160ms ease 40ms, transform 220ms ease;
     transform: translateX(-8px);
     z-index: 1;
     pointer-events: none;
@@ -199,12 +190,6 @@
         gap: 6px;
       }
 
-      .infoRow {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
       .panelDescription {
         color: var(--text-primary);
         font-size: 0.94rem;
@@ -215,6 +200,7 @@
     }
   }
 
+  /* Background overlay (used for expansion animation) */
   .bgOverlay {
     position: absolute;
     top: 0;
@@ -224,11 +210,13 @@
     border-radius: 14px;
     background: var(--card-bg);
     opacity: 0;
-    transition: opacity 0.18s ease-in-out;
     z-index: 0;
     pointer-events: none;
   }
 
+  /* =========================
+     Footer and Metadata Styles
+  ========================= */
   .meta {
     display: flex;
     align-items: center;
@@ -254,12 +242,6 @@
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 500;
-      transition: background-color 0.2s ease;
-
-      &:hover {
-        background-color: var(--accent-color);
-        color: #fff;
-      }
     }
   }
 
@@ -280,6 +262,7 @@
     }
   }
 
+  /* Hide unused elements for compact layout */
   .footer,
   .author,
   .description,
@@ -287,25 +270,30 @@
   .baseInfo {
     display: none;
   }
-}
 
-// Theme variables
-:root[data-theme="light"] {
-  --card-bg: #ffffff;
-  --text-primary: #1e1e1e;
-  --text-secondary: #555;
-  --accent-color: #2b7a78;
-  --accent-hover: #205c5a;
-  --accent-light: #d2f1f0;
-  --accent-text: #134e4a;
-}
+  /* =========================
+     Responsive Design
+     - Scale and center on small screens
+  ========================= */
 
-:root[data-theme="dark"] {
-  --card-bg: #1c1c1c;
-  --text-primary: #f2f2f2;
-  --text-secondary: #b0b0b0;
-  --accent-color: #3cd2c2;
-  --accent-hover: #2b9d91;
-  --accent-light: #124643;
-  --accent-text: #d0fdf9;
+  /* Tablets */
+  @media (max-width: 900px) {
+    max-width: 260px;
+    --card-height: 340px;
+  }
+
+  /* Phones */
+  @media (max-width: 600px) {
+    max-width: 320px; /* ✅ bigger for comfortable tap size */
+    --card-height: 400px;
+    margin-left: auto;
+    margin-right: auto; /* ✅ ensures perfect center */
+    border-radius: 16px;
+    .titleBar .title {
+      font-size: 1.15rem;
+    }
+    .titleBar .chapters {
+      font-size: 0.95rem;
+    }
+  }
 }

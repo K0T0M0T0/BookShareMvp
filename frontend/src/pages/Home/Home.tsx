@@ -42,7 +42,7 @@ export default function Home() {
       <div className={styles.topTabs}>
         <button
           className={`${styles.tabButton} ${
-            activeTab === "user" ? styles.active : ""
+            activeTab === "user" ? styles.active : null
           }`}
           onClick={() => setActiveTab("user")}
         >
@@ -66,26 +66,28 @@ export default function Home() {
       ========================= */}
       <div className={styles.contentGrid}>
         {/* ===== Left Column: Personalized (User) Updates ===== */}
-        <div
-          className={`${styles.userUpdates} ${
-            activeTab === "user" ? styles.visible : styles.hidden
-          }`}
-        >
-          <h2>Your Readlist Updates</h2>
+        {session.userId ? (
+          <div
+            className={`${styles.userUpdates} ${
+              activeTab === "user" ? styles.visible : styles.hidden
+            }`}
+          >
+            <h2>Your Readlist Updates</h2>
 
-          {/* If user has updates, show BookCards. Otherwise show placeholder */}
-          {userUpdates.length > 0 ? (
-            <div className={styles.cardGrid}>
-              {userUpdates.map((b) => (
-                <BookCard key={b.id} book={b} />
-              ))}
-            </div>
-          ) : (
-            <p className={styles.emptyText}>
-              No recent updates in your reading lists.
-            </p>
-          )}
-        </div>
+            {/* If user has updates, show BookCards. Otherwise show placeholder nut if is is empty then it show nothing */}
+            {userUpdates.length > 0 ? (
+              <div className={styles.cardGrid}>
+                {userUpdates.map((b) => (
+                  <BookCard key={b.id} book={b} />
+                ))}
+              </div>
+            ) : (
+              <p className={styles.emptyText}>
+                No recent updates in your reading lists.
+              </p>
+            )}
+          </div>
+        ) : null}
 
         {/* ===== Right Column: Global Updates ===== */}
         <div

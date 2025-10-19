@@ -1,0 +1,115 @@
+/* =========================
+File: src/pages/search/SearchPage.module.scss
+========================= */
+
+/* =========================
+   Page container
+========================= */
+section {
+  padding: 1rem 2rem;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+/* =========================
+   Search Bar
+========================= */
+.searchbar {
+  margin-bottom: 1rem;
+
+  input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--text-secondary);
+  }
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  .filterGroup {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    background-color: var(--card-bg);
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .checkboxGroup {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 400;
+      }
+    }
+
+    .rangeInputs {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+
+      input {
+        width: 70px;
+        padding: 0.3rem;
+        border-radius: 4px;
+        border: 1px solid var(--text-secondary);
+      }
+    }
+  }
+}
+
+/* =========================
+   Responsive Results Grid
+   - Cards align left-to-right
+   - Number of columns auto-adjusts
+========================= */
+.resultsGrid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 100%;
+  justify-content: center;
+  align-items: start;
+
+  /* ✅ Key line: allow the grid to fill all available space */
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+
+  /* ✅ Fix container restriction on desktop */
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  @media (max-width: 1023px) and (min-width: 600px) {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  @media (max-width: 599px) {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.8rem;
+  }
+}

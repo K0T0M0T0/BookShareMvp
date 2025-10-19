@@ -1,0 +1,118 @@
+.overlay {
+  position: fixed; // ✅ fixed relative to viewport
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  // optional: dim background when card appears
+  background: rgba(0, 0, 0, 0.3);
+  pointer-events: none; // so it doesn't block page interaction
+}
+
+.bigCard {
+  position: relative; // relative to overlay
+  background: var(--card-bg);
+  color: var(--text-primary);
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.2rem;
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.2s ease-in-out;
+  pointer-events: none;
+  // make only the card itself visible, but overlay non-interactive
+
+  .left {
+    flex: 0 0 auto;
+
+    .cover {
+      width: 180px;
+      height: auto;
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+      display: block;
+      pointer-events: none;
+    }
+
+    .coverPlaceholder {
+      width: 180px;
+      height: 260px;
+      background: #ccc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1 1 auto;
+    min-width: 200px;
+    max-width: 320px;
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .author {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .description {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--text-primary);
+      max-height: 6.5em;
+      overflow: hidden;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .genres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+
+      .genre {
+        background: var(--accent-light);
+        color: var(--accent-text);
+        padding: 0.25rem 0.55rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

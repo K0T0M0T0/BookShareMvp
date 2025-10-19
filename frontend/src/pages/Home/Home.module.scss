@@ -1,153 +1,208 @@
 /* =========================
-   General container setup
+File: src/pages/Home.module.scss
+========================= */
+
+/* =========================
+   Main Page Container
+   - Centers content vertically
+   - Handles responsive padding and background
 ========================= */
 .homeContainer {
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  justify-content: flex-start;
+  padding: 2rem 4rem;
   color: var(--text);
   background-color: var(--bg);
   min-height: 100vh;
-}
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
 
-/* =========================
-   Top toggle bar (for mobile)
-   - Shown only on small screens.
-   - Lets user switch between "Your Updates" and "All Updates".
-========================= */
-.topTabs {
-  display: none;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  gap: 0.1rem;
+  @media (max-width: 1024px) {
+    padding: 2rem; /* Slightly smaller padding for tablets */
+  }
 
-  @media (max-width: 768px) {
-    display: flex;
+  @media (max-width: 600px) {
+    padding: 1.2rem; /* Compact padding for phones */
   }
 }
 
 /* =========================
-   Buttons inside the top bar
+   Top Tabs (Mobile/Tablet)
+   - Used to switch between "Your" and "All" updates
+   - Hidden on desktops
+========================= */
+.topTabs {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+
+  @media (max-width: 900px) {
+    display: flex; /* Visible for tablets & phones */
+  }
+}
+
+/* =========================
+   Toggle Buttons
+   - Active tab highlights with accent color
+   - Smooth hover & transition
 ========================= */
 .tabButton {
   background: transparent;
   border: 2px solid var(--accent);
   border-radius: 8px;
   color: var(--accent);
-  padding: 0.4rem 1rem;
+  padding: 0.5rem 1.2rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
 
-  /* Active tab button (highlighted) */
   &.active {
     background-color: var(--accent);
     color: #fff;
   }
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.85;
   }
 }
 
 /* =========================
-   Grid layout for content
-   - Two columns (user + global updates)
-   - Collapses into one column on smaller screens
+   Main Grid Layout
+   - Desktop: 2 columns
+   - Tablet/Mobile: 1 column
 ========================= */
 .contentGrid {
   display: grid;
-  grid-template-columns: 1fr 2fr; /* Left 1x, right 2x width */
-  gap: 0.1rem;
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; /* Small gap between columns */
 
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr; /* Stack vertically */
   }
 }
 
 /* =========================
-   Section styling (user/global)
+   Section Visibility
+   - For tab control on mobile
 ========================= */
-.userUpdates,
-.globalUpdates {
-  transition: all 0.3s ease;
+.visible {
+  display: block;
+}
+
+.hidden {
+  display: none;
+
+  @media (min-width: 901px) {
+    display: block; /* Always show both sections on desktop */
+  }
+}
+
+/* =========================
+   Left Column: User Updates
+   - Personalized list
+   - Clean card container
+========================= */
+.userUpdates {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.4rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  min-height: 320px; /* Ensure consistent height */
+  transition: background 0.3s ease;
 
   h2 {
-    font-size: 1.6rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .subtitle {
-    color: var(--muted);
-    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
   }
 
   .emptyText {
-    color: var(--muted);
     font-style: italic;
-    margin-top: 1rem;
+    color: var(--text-secondary);
+    margin-top: 0.8rem;
   }
 }
 
 /* =========================
-   Responsive behavior
-   - Only one section visible at a time on mobile
+   Right Column: Global Updates
+   - Similar styling for consistency
 ========================= */
-@media (max-width: 768px) {
-  .userUpdates,
-  .globalUpdates {
-    display: none;
+.globalUpdates {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.4rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  min-height: 320px;
 
-    &.visible {
-      display: block;
-    }
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+  }
 
-    &.hidden {
-      display: none;
-    }
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
   }
 }
 
 /* =========================
-   Card grid layout
-   - Keeps cards uniform in size
-   - Consistent small gaps between all cards
+   Shared Card Grid Layout
+   - Holds BookCard components
+   - Centers and adapts on mobile
 ========================= */
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(270px, 1fr)
-  ); /* all cards same min size */
-  gap: 0.1rem; /* consistent smaller gap */
-  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.9rem;
+  align-items: start;
+  justify-content: center; /* Centers cards horizontally */
+  justify-items: center; /* Centers each card within its cell */
 
-  > * {
-    max-width: 270px; /* equal card width */
-    width: 100%;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(200px, 1fr)
+    ); /* Slightly larger cards for tablets */
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr; /* One card per row on phones */
+    gap: 1rem;
+    justify-items: center; /* Keep centered horizontally */
   }
 }
 
 /* =========================
-   Small screen adjustments
+   Responsive Tweaks
+   - Adjust text sizes and spacing
 ========================= */
-@media (max-width: 768px) {
-  .homeContainer {
+@media (max-width: 1024px) {
+  .userUpdates,
+  .globalUpdates {
+    padding: 1.2rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .userUpdates,
+  .globalUpdates {
     padding: 1rem;
   }
 
-  .cardGrid {
-    grid-template-columns: 1fr;
-    gap: 0.1rem;
-
-    > * {
-      max-width: 270px;
-    }
+  h2 {
+    font-size: 1.1rem;
+    text-align: center;
   }
 
-  .userUpdates h2,
-  .globalUpdates h2 {
-    font-size: 1.3rem;
+  .cardGrid {
+    gap: 1rem;
   }
 }

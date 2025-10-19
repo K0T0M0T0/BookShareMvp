@@ -5,6 +5,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 interface Session {
   userId: string | null;
+  userName?: string;
+  userProfileUrl?: string | null; // ✅ add this line
 }
 const initial: Session = JSON.parse(
   localStorage.getItem("mvp_session") || '{"userId":null}'

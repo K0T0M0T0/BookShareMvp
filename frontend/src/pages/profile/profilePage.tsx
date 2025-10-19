@@ -1,15 +1,13 @@
-/* =========================
-File: src/pages/profile/ProfilePage.tsx
-========================= */
-
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import { updateProfile } from "../../store/Slices/usersSlice";
-import { Check, X } from "lucide-react";
+import { logout } from "../../store/Slices/sessionSlice"; // ✅ import logout
+import { Check, X, LogOut } from "lucide-react"; // ✅ icon for logout
 import styles from "./ProfilePage.module.scss";
 import CollectionsOverview from "../collections/components/CollectionsOverview";
 import AddCollectionForm from "./components/AddCollectionForm";
+import ProfileImage from "../../components/ProfileImage";
 
 export default function ProfilePage() {
   const session = useSelector((s: RootState) => s.session);
@@ -35,17 +33,21 @@ export default function ProfilePage() {
     setEditing(false);
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("token"); // optional cleanup
+    window.location.href = "/"; // redirect to homepage or login
+  };
+
   return (
     <section className={styles.profilePage}>
       <h2>Profile</h2>
 
       <div className={styles.profileInfo}>
-        {/* --- Avatar --- */}
         <div className={styles.avatarWrapper}>
-          <img src={avatar || "/default-avatar.png"} alt="avatar" />
+          <ProfileImage src={avatar} size={100} className={styles.avatar} />
         </div>
 
-        {/* --- Details --- */}
         <div className={styles.details}>
           {editing ? (
             <>
@@ -77,6 +79,15 @@ export default function ProfilePage() {
                 onClick={() => setEditing(true)}
               >
                 Edit
+              </button>
+              {/* ✅ Logout button */}
+              <button
+                className={styles.logoutBtn}
+                onClick={handleLogout}
+                title="Logout"
+              >
+                <LogOut size={18} />
+                <span>Logout</span>
               </button>
             </>
           )}

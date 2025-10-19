@@ -1,11 +1,18 @@
 /* =========================
 File: src/styles/globals.css
 ========================= */
+
+/* Global reset */
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
+
+/* =========================
+   Theme Variables
+   - Light & Dark themes
+========================= */
 :root {
   --bg: #ffffff;
   --text: #0f172a;
@@ -13,30 +20,72 @@ File: src/styles/globals.css
   --accent: #6d28d9;
   --card-bg: #ffffff;
 }
+
 [data-theme="dark"] {
   --bg: #0b1220;
   --text: #e6eef8;
   --muted: #9aa4b2;
-  --card-bg: #071022;
+  --card-bg: #101a33;
 }
+
+/* =========================
+   Base Layout
+========================= */
 html,
 body,
 #root {
   height: 100%;
   margin: 0;
 }
+
 body {
   background: var(--bg);
   color: var(--text);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  display: flex;
+  flex-direction: column;
 }
-/* center main content on wide screens */
-#root > div {
-  max-width: 1200px;
+/* Ensures consistent centering and prevents horizontal scroll */
+main,
+section,
+.pageContainer {
+  box-sizing: border-box;
   margin: 0 auto;
   width: 100%;
+  max-width: 100vw;
+  padding-inline: 1rem; /* adds breathing room safely*/
 }
-/* Default controls shared across components */
+
+/* =========================
+   Center Main Content
+   - Centers horizontally on all screens
+   - Limits width for large displays
+========================= */
+#root > div {
+  width: 100%;
+  margin: 0;
+  padding: 0 1rem; /* ✅ small side padding for mobile */
+}
+
+/* ✅ On small screens, center text and layout horizontally */
+@media (max-width: 600px) {
+  body {
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  #root > div {
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ✅ makes content centered */
+    text-align: center; /* optional: center text for narrow screens */
+  }
+}
+
+/* =========================
+   Shared Control Styling
+========================= */
 input,
 textarea,
 select,
@@ -47,10 +96,14 @@ button {
   padding: 0.6rem 0.8rem;
   margin: 0.15rem 0;
 }
+
 button {
   cursor: pointer;
 }
-/* Utility helpers */
+
+/* =========================
+   Utility Containers
+========================= */
 .container {
   max-width: 1100px;
   margin: 0 auto;
