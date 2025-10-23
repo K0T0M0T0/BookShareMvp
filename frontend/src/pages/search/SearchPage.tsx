@@ -7,7 +7,8 @@ import GenreFilter from "./components/GenreFilter";
 import TagFilter from "./components/TagFilter";
 
 export default function SearchPage() {
-  const books = useSelector((s: RootState) => s.books);
+  const allBooks = useSelector((s: RootState) => s.books);
+  const books = allBooks.filter((b) => b.approved); // ✅ only show approved books
   const [q, setQ] = React.useState("");
   const [selectedGenres, setSelectedGenres] = React.useState<string[]>([]);
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);

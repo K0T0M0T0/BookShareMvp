@@ -4,7 +4,11 @@ File: src/App.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainNavbar } from "./layout/MainNavbar";
 import Home from "./pages/Home/Home";
-
+import AdminZoneNav from "./features/admin/components/AdminNavbar";
+import UsersPage from "./features/admin/pages/Users/UsersPages";
+import LogsPage from "./features/admin/pages/Logs/LogsPage";
+import RequestsPage from "./features/admin/pages/Requests/RequestsPage";
+import { adminAuthService } from "./features/admin/services/adminAuthService";
 import CreateBookForm from "./pages/CreateBook/CreateBookForm";
 import BookPage from "./pages/BookPage/BookPage";
 import ChapterPage from "./pages/BookPage/ChapterPage/ChapterPage";
@@ -17,6 +21,7 @@ import SearchPage from "./pages/search/SearchPage";
 
 // Main app with routes. AppShell contains navbar and theme control.
 export default function App() {
+  const isAdmin = adminAuthService.isAdmin();
   return (
     <BrowserRouter>
       <MainNavbar>
@@ -31,6 +36,20 @@ export default function App() {
           <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/collections/:id" element={<CollectionsPage />} />
           <Route path="/search" element={<SearchPage />} />
+          {isAdmin && (
+            <Route
+              path="/admin"
+              element={
+                <div>
+                  <AdminZoneNav />
+                </div>
+              }
+            >
+              <Route path="users" element={<UsersPage />} />
+              <Route path="logs" element={<LogsPage />} />
+              <Route path="requests" element={<RequestsPage />} />
+            </Route>
+          )}
         </Routes>
       </MainNavbar>
     </BrowserRouter>

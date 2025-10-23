@@ -18,7 +18,7 @@ export default function CreateBookForm() {
   const [genres, setGenres] = useState("");
   const [tags, setTags] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
-  
+
   // Handlers
   //sumbit
   const submit = (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ export default function CreateBookForm() {
     // call addBook action
     dispatch(
       addBook({
-        rating: 0,
+        rating: null,
         title,
         author,
         description,

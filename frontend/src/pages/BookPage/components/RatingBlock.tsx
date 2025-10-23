@@ -1,48 +1,69 @@
 /* =========================
-File: src/pages/books/components/RatingBlock.tsx
+File: src/components/bookcard/components/RatingStars.tsx
 ========================= */
 
 import React from "react";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../../store/store";
-import { rateBook } from "../../../store/Slices/booksSlice";
-import RatingStars from "../../../components/bookcard/components/RatingStars";
+import { Star } from "lucide-react";
+import styles from "./RatingBlock.module.scss";
 
-/**
- * Handles displaying and updating a user's personal rating for the book.
- * Saves rating in localStorage to persist between sessions.
- */
-export default function RatingBlock({
-  id,
+type RatingStarsProps = {
+  value: number; // average rating, may include halves like 3.5
+  onChange?: (value: number) => void;
+  selected?: number;
+  showLabel?: boolean;
+};
+
+export default function RatingStars({
   value,
-}: {
-  id: string;
-  value: number;
-}) {
-  const dispatch = useDispatch<AppDispatch>();
-  const [myRating, setMyRating] = React.useState<number>(() => {
-    const raw = localStorage.getItem(`my_rating_${id}`);
-    return raw ? Number(raw) : 0;
-  });
+  onChange,
+  selected,
+  showLabel = false,
+}: RatingStarsProps) {
+  const [hover, setHover] = React.useState<number | null>(null);
 
-  const handleRate = (n: number) => {
-    setMyRating(n);
-    localStorage.setItem(`my_rating_${id}`, String(n));
-    dispatch(rateBook({ id, rating: n }));
+  const renderStar = (index: number) => {
+    const fullValue = hover ?? selected ?? value;
+    const isFull = fullValue >= index;
+    const isHalf = fullValue >= index - 0.5 && fullValue < index;
+
+    return (
+      <div
+        key={index}
+        className={styles.starWrapper}
+        onClick={() => onChange?.(index)}
+        onMouseEnter={() => setHover(index)}
+        onMouseLeave={() => setHover(null)}
+      >
+        {/* Empty star */}
+        <Star className={styles.emptyStar} strokeWidth={1.5} />
+
+        {/* Full or half fill */}
+        <Star
+          className={`${styles.filledStar} ${
+            isFull ? styles.full : isHalf ? styles.half : ""
+          }`}
+          strokeWidth={1.5}
+        />
+      </div>
+    );
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <RatingStars
-        value={value}
-        onChange={handleRate}
-        selected={myRating > 0 ? myRating : undefined}
-        showLabel
-      />
-      {myRating > 0 && (
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          Your rating: <strong>{myRating}</strong>
-          <span aria-hidden>★</span>
+    <div className={styles.ratingStars}>
+      <svg width="0" height="0">
+        <defs>
+          <linearGradient id="halfStar">
+            <stop offset="50%" stopColor="#f5a623" />
+            <stop offset="50%" stopColor="transparent" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {Array.from({ length: 5 }, (_, i) => renderStar(i + 1))}
+
+      {showLabel && (
+        <span className={styles.label}>
+          {(Math.round(value * 2) / 2).toFixed(1)} / 5
         </span>
       )}
     </div>

@@ -1,0 +1,82 @@
+/* =========================
+File: AdminNavbar.module.scss
+Purpose: Responsive admin sub-navigation bar
+========================= */
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  background: var(--card-bg, rgba(255, 255, 255, 0.1));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+
+  a {
+    color: var(--text-primary, #333);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    position: relative;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    transition: color 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      color: var(--accent, #5a6ef0);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    &.active {
+      color: var(--accent, #5a6ef0);
+      background: rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+/* =========================
+   Responsive (Tablet & Mobile)
+========================= */
+
+@media (max-width: 768px) {
+  .navbar {
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    justify-content: space-around;
+    padding: 0.6rem 0;
+    background: var(--card-bg, #fff);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: none;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+
+    a {
+      font-size: 0.9rem;
+      flex: 1;
+      text-align: center;
+      padding: 0.5rem 0;
+    }
+  }
+}
+
+/* =========================
+   Very Small Devices
+========================= */
+@media (max-width: 480px) {
+  .navbar {
+    gap: 0;
+    padding: 0.5rem 0;
+
+    a {
+      font-size: 0.85rem;
+      padding: 0.4rem 0;
+    }
+  }
+}

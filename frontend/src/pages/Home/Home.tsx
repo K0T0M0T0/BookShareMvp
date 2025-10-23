@@ -9,7 +9,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"user" | "global">("user");
 
   // Fetch global state values
-  const books = useSelector((s: RootState) => s.books); // All books in store
+  const allBooks = useSelector((s: RootState) => s.books);
+  const books = allBooks.filter((b) => b.approved); // ✅ only show approved books
   const readingLists = useSelector((s: RootState) => s.readingLists); // User reading list data
   const session = useSelector((s: RootState) => s.session); // Current user session info
   const userId = session.userId; // Current logged-in user ID

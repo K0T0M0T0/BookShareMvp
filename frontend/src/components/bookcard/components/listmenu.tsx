@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import styles from "./listmenu.module.scss";
-import { Check, Trash } from "lucide-react";
+import { Check, Trash, X } from "lucide-react";
 import type { BuiltInList } from "../../../store/Slices/readingListsSlice";
 
 type Props = {
@@ -10,21 +10,49 @@ type Props = {
   listName?: string;
   onSelect: (list: string) => void;
   onRemove: () => void;
+  onClose: () => void; // ✅ new
 };
 
 const ListMenu = forwardRef<HTMLDivElement, Props>(
   (
-    { builtInLists, customLists, inList, listName, onSelect, onRemove },
+    {
+      builtInLists,
+      customLists,
+      inList,
+      listName,
+      onSelect,
+      onRemove,
+      onClose,
+    },
     ref
   ) => {
     return (
-      <div className={styles.listMenu} role="menu" ref={ref}>
+      <div
+        className={styles.listMenu}
+        role="menu"
+        ref={ref}
+        onClick={(e) => e.stopPropagation()} // ✅ stop click from affecting card
+      >
+        {/* ✅ Close button (top-right) */}
+        <button
+          className={styles.closeBtn}
+          onClick={(e) => {
+            e.stopPropagation(); // prevent triggering card
+            onClose();
+          }}
+          aria-label="Close menu"
+          title="Close menu"
+        >
+          <X size={16} />
+        </button>
+
         <div className={styles.menuSection}>
           <div className={styles.menuHeader}>Quick actions</div>
           <button className={styles.menuItem} onClick={() => onSelect("later")}>
             <span>Add to Later</span>
             {listName === "later" && <Check size={14} />}
           </button>
+
           {inList && (
             <button className={styles.menuItem} onClick={onRemove}>
               <span>Remove from list</span>

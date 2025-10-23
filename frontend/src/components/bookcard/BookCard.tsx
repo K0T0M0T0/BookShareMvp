@@ -29,10 +29,15 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
   const inList = Boolean(listEntry);
   const listName = listEntry?.list;
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const [hovered, setHovered] = useState(false); // <— NEW
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [showExtension, setShowExtension] = useState(false);
+  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const bookmarkRef = useRef<HTMLButtonElement | null>(null);
+
+  // === Close menu when clicking outside ===
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!menuRef.current) return;
@@ -41,6 +46,24 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
   }, []);
+
+  // === Handle hover timing for extension ===
+  useEffect(() => {
+    if (hovered && !menuOpen && !inList) {
+      // Start 3-second timer only if no menu/bookmark active
+      hoverTimerRef.current = setTimeout(() => {
+        setShowExtension(true);
+      }, 500);
+    } else {
+      // Cancel timer and hide extension immediately
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      setShowExtension(false);
+    }
+
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+  }, [hovered, menuOpen, inList]);
 
   const builtInLists: BuiltInList[] = [
     "later",
@@ -65,7 +88,6 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
       return;
     }
 
-    // sync with localStorage
     try {
       const key = `lists_${userId}`;
       const collections: { name: string; ids: string[] }[] = JSON.parse(
@@ -129,6 +151,23 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
 
   const handleOpen = () => navigate(`/books/${book.id}`);
 
+  // === Prevent hover from triggering if on bookmark ===
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (
+      bookmarkRef.current?.contains(target) ||
+      menuRef.current?.contains(target)
+    ) {
+      return;
+    }
+    setHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setShowExtension(false);
+  };
+
   return (
     <>
       <div
@@ -143,12 +182,13 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
           }
         }}
         aria-label={`Open ${book.title}`}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className={styles.coverWrap}>
           <div className={styles.bookmarkWrap} ref={menuRef}>
             <button
+              ref={bookmarkRef}
               className={`${styles.bookmarkBtn} ${inList ? styles.active : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -175,6 +215,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
                 listName={listName}
                 onSelect={handleSelectList}
                 onRemove={handleRemove}
+                onClose={() => setMenuOpen(false)} // ✅ added
               />
             )}
           </div>
@@ -194,6 +235,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
               <span>No cover</span>
             </div>
           )}
+
           <div className={styles.titleBar}>
             <h3 className={styles.title}>{book.title}</h3>
             <div className={styles.ratingRow}>
@@ -203,9 +245,9 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
         </div>
       </div>
 
-      {/* Hover Extension Card */}
-      {hovered && (
-        <ExtensionCard book={book} onClose={() => setHovered(false)} />
+      {/* ✅ Extension appears only after 3s hover, if no bookmark activity */}
+      {showExtension && (
+        <ExtensionCard book={book} onClose={() => setShowExtension(false)} />
       )}
     </>
   );

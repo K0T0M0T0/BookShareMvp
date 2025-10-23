@@ -1,0 +1,64 @@
+/* =========================
+File: src/components/bookcard/components/RatingStars.module.scss
+========================= */
+
+/* Container for all stars */
+.ratingStars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Each clickable star area */
+.starWrapper {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+
+  &:hover .filledStar {
+    transform: scale(1.15);
+    transition: transform 0.15s ease;
+  }
+}
+
+/* Empty (background) star outline */
+.emptyStar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  color: #ccc;
+  fill: none;
+}
+
+/* Filled star layer */
+.filledStar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  color: #f5a623;
+  fill: none;
+  transition: transform 0.15s ease;
+}
+
+/* Completely filled star */
+.full {
+  fill: #f5a623;
+}
+
+/* Half-filled star using gradient */
+.half {
+  fill: url(#halfStar);
+}
+
+/* Rating label text */
+.label {
+  margin-left: 6px;
+  font-size: 14px;
+  color: var(--text-primary, #555);
+  font-weight: 500;
+}

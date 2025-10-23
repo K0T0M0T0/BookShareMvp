@@ -8,9 +8,15 @@ import styles from "./MainNavbar.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store/store";
 import { logout } from "../store/Slices/sessionSlice";
-import ProfileImage from "../components/ProfileImage"; // adjust the path to your component
+import { adminAuthService } from "../features/admin/services/adminAuthService";
+import ProfileImage from "../components/ProfileImage"; // adjust path if needed
 
-interface typeNavBut {
+interface ProfileImageProps {
+  src?: string | null;
+  size?: number;
+  className?: string;
+}
+interface NavButton {
   text: string;
   path: string;
 }
@@ -18,27 +24,30 @@ interface typeNavBut {
 export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // ===== Theme State =====
   const [theme, setTheme] = React.useState<"light" | "dark">(
     () => (localStorage.getItem("mvp_theme") as any) || "light"
   );
+
+  // ===== Admin and Session =====
 
   const session = useSelector((s: RootState) => s.session);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const navagtionbuttons: typeNavBut[] = [
+  // ===== Navigation Buttons =====
+  const navButtons: NavButton[] = [
     { text: "Create Book", path: "/books/create" },
     { text: "Search", path: "/search" },
   ];
 
-  // Track scroll direction for navbar hide/show
+  // ===== Scroll Hide/Show =====
   const [hidden, setHidden] = React.useState(false);
   const lastScrollY = React.useRef(0);
 
   React.useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      // ✅ Hide when scrolling down, show when scrolling up
       if (currentScroll > lastScrollY.current && currentScroll > 60) {
         setHidden(true);
       } else {
@@ -51,16 +60,24 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // ===== Apply Theme =====
   React.useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("mvp_theme", theme);
   }, [theme]);
 
-  // Logout (kept for future use if needed)
+  // ===== Logout =====
   const onLogout = () => {
     dispatch(logout());
+    adminAuthService.logout();
     navigate("/");
   };
+  const [isAdmin, setIsAdmin] = React.useState(adminAuthService.isAdmin());
+  React.useEffect(() => {
+    const handleStorageChange = () => setIsAdmin(adminAuthService.isAdmin());
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return (
     <div className={styles.shell}>
@@ -78,7 +95,7 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
 
         {/* ===== Middle Section ===== */}
         <nav className={styles.middleSection}>
-          {navagtionbuttons.map((btn) => (
+          {navButtons.map((btn) => (
             <button
               key={btn.path}
               onClick={() => navigate(btn.path)}
@@ -87,6 +104,16 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
               {btn.text}
             </button>
           ))}
+
+          {/* ✅ Show Admin Zone if logged in as admin */}
+          {isAdmin && (
+            <button
+              className={`${styles.NavbarBtn} ${styles.btn}`}
+              onClick={() => navigate("/admin")}
+            >
+              Admin Zone
+            </button>
+          )}
         </nav>
 
         {/* ===== Right Section ===== */}
@@ -99,22 +126,20 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
             Toggle Theme
           </button>
 
-          {/* ✅ If user logged in → show profile image */}
+          {/* ✅ Logged user → profile */}
           {session.userId ? (
-            <button
-              className={styles.btn}
-              onClick={() => navigate("/profile")}
-              aria-label="Profile"
-              title="Profile"
-            >
-              <ProfileImage
-                src={session.userProfileUrl} // or whatever field stores user image
-                size={36}
-                className={styles.profileImg}
-              />
-            </button>
+            <div className={styles.userMenu}>
+              <button
+                className={styles.btn}
+                onClick={() => navigate("/profile")}
+                aria-label="Profile"
+                title="Profile"
+              >
+                <ProfileImage />
+              </button>
+            </div>
           ) : (
-            // Otherwise → show login icon
+            // ❌ Not logged in → show login icon
             <button
               className={styles.btn}
               onClick={() => navigate("/login")}
