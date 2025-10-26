@@ -36,10 +36,7 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
   const navigate = useNavigate();
 
   // ===== Navigation Buttons =====
-  const navButtons: NavButton[] = [
-    { text: "Create Book", path: "/books/create" },
-    { text: "Search", path: "/search" },
-  ];
+  const navButtons: NavButton[] = [{ text: "Search", path: "/search" }];
 
   // ===== Scroll Hide/Show =====
   const [hidden, setHidden] = React.useState(false);
@@ -92,7 +89,14 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
         >
           Books C&R
         </button>
-
+        {session.userId && (
+          <button
+            className={`${styles.NavbarBtn} ${styles.btn}`}
+            onClick={() => navigate("/books/create")}
+          >
+            Create Book
+          </button>
+        )}
         {/* ===== Middle Section ===== */}
         <nav className={styles.middleSection}>
           {navButtons.map((btn) => (

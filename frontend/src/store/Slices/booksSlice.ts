@@ -1,14 +1,20 @@
 /* ==========================================================
 File: src/store/Slices/booksSlice.ts
 Purpose: Manage all book-related state (books, chapters, approvals)
-and automatically log important actions for the admin LogsPage.
+and automatically sync with backend + log important actions.
 ========================================================== */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
-import { addLog } from "./logsSlice"; // ✅ For tracking actions
+import { addLog } from "./logsSlice";
 import type { AppDispatch } from "../store";
+import {
+  fetchAllBooks,
+  createBook,
+  updateBook,
+  deleteBook,
+} from "../services/booksApi";
 
 /* ==========================================================
 SECTION 1: Data structure definitions
@@ -35,12 +41,13 @@ export interface Book {
   uploaderId: string | null;
   rating: number | null;
   coverUrl?: string;
-  approved?: boolean; // ✅ Admin approval required before public display
+  approved?: boolean;
 }
 
 /* ==========================================================
-SECTION 2: Initial data setup
+SECTION 2: Initial Data Setup
 ========================================================== */
+
 const sample: Book[] = JSON.parse(
   localStorage.getItem("mvp_books") || "null"
 ) || [
@@ -74,35 +81,68 @@ const sample: Book[] = JSON.parse(
 ];
 
 /* ==========================================================
-SECTION 3: Main slice definition
+SECTION 3: Async Thunks (backend connection)
 ========================================================== */
+
+// Fetch all books from backend
+export const loadBooks = createAsyncThunk("books/loadAll", async () => {
+  return await fetchAllBooks();
+});
+
+// Save new book to backend
+export const saveBook = createAsyncThunk(
+  "books/save",
+  async (book: Omit<Book, "id" | "chapterAmount" | "chapters">) => {
+    return await createBook(book);
+  }
+);
+
+// Update book info
+export const saveBookEdit = createAsyncThunk(
+  "books/edit",
+  async ({ id, data }: { id: string; data: Partial<Book> }) => {
+    return await updateBook(id, data);
+  }
+);
+
+// Delete a book
+export const removeBookFromServer = createAsyncThunk(
+  "books/remove",
+  async (id: string) => {
+    return await deleteBook(id);
+  }
+);
+
+/* ==========================================================
+SECTION 4: Slice Definition
+========================================================== */
+
 const booksSlice = createSlice({
   name: "books",
   initialState: sample,
   reducers: {
     /* ========================================================
-    ACTION: Add new book
+    LOCAL ACTIONS (stay the same)
     ======================================================== */
     addBook(
       state,
       action: PayloadAction<Omit<Book, "id" | "chapters" | "chapterAmount">>
     ) {
       const payload = action.payload as any;
+
       const b: Book = {
         id: nanoid(),
         chapters: [],
         chapterAmount: 0,
         rating: 0,
-        approved: false, // not visible until admin approval
+        approved: false,
         ...payload,
       };
+
       state.unshift(b);
       localStorage.setItem("mvp_books", JSON.stringify(state));
     },
 
-    /* ========================================================
-    ACTION: Edit book info
-    ======================================================== */
     editBook(
       state,
       action: PayloadAction<{ id: string; data: Partial<Book> }>
@@ -112,15 +152,11 @@ const booksSlice = createSlice({
       localStorage.setItem("mvp_books", JSON.stringify(state));
     },
 
-    /* ========================================================
-    ACTION: Remove a book
-    ======================================================== */
     removeBook(state, action: PayloadAction<{ id: string; adminId?: string }>) {
       const book = state.find((b) => b.id === action.payload.id);
       const res = state.filter((b) => b.id !== action.payload.id);
       localStorage.setItem("mvp_books", JSON.stringify(res));
 
-      // ✅ Log the removal
       if (book) {
         setTimeout(() => {
           (window as any).store?.dispatch(
@@ -138,9 +174,6 @@ const booksSlice = createSlice({
       return res;
     },
 
-    /* ========================================================
-    ACTION: Add a new chapter
-    ======================================================== */
     addChapter(
       state,
       action: PayloadAction<{
@@ -165,34 +198,36 @@ const booksSlice = createSlice({
       book.chapterAmount = book.chapters.length;
       localStorage.setItem("mvp_books", JSON.stringify(state));
 
-      // ✅ Log chapter creation
+      const logData = {
+        bookTitle: book.title,
+        bookId: book.id,
+        chapterTitle: c.title,
+        userId: action.payload.userId || "unknown",
+      };
+
       setTimeout(() => {
         (window as any).store?.dispatch(
           addLog({
             type: "chapter",
-            action: `Added chapter "${c.title}"`,
-            userId: action.payload.userId || "unknown",
-            targetId: book.id,
-            extra: `Book: ${book.title}`,
+            action: `Added chapter "${logData.chapterTitle}"`,
+            userId: logData.userId,
+            targetId: logData.bookId,
+            extra: `Book: ${logData.bookTitle}`,
           })
         );
       });
     },
 
-    /* ========================================================
-    ACTION: Rate book
-    ======================================================== */
     rateBook(state, action: PayloadAction<{ id: string; rating: number }>) {
       const b = state.find((x) => x.id === action.payload.id);
       if (!b) return;
-      if (b.rating === null) b.rating = action.payload.rating;
-      b.rating = (b.rating + action.payload.rating) / 2;
+      b.rating =
+        b.rating === null
+          ? action.payload.rating
+          : (b.rating + action.payload.rating) / 2;
       localStorage.setItem("mvp_books", JSON.stringify(state));
     },
 
-    /* ========================================================
-    ACTION: Approve or reject book (admin only)
-    ======================================================== */
     approveBook(
       state,
       action: PayloadAction<{ id: string; adminId?: string }>
@@ -201,7 +236,6 @@ const booksSlice = createSlice({
       if (b) b.approved = true;
       localStorage.setItem("mvp_books", JSON.stringify(state));
 
-      // ✅ Clone book before async call
       if (b) {
         const logData = { ...b };
         setTimeout(() => {
@@ -223,7 +257,6 @@ const booksSlice = createSlice({
       if (b) b.approved = false;
       localStorage.setItem("mvp_books", JSON.stringify(state));
 
-      // ✅ Clone book before async call
       if (b) {
         const logData = { ...b };
         setTimeout(() => {
@@ -240,11 +273,37 @@ const booksSlice = createSlice({
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Fetch all books
+      .addCase(loadBooks.fulfilled, (_, action) => {
+        localStorage.setItem("mvp_books", JSON.stringify(action.payload));
+        return action.payload;
+      })
+      // Save new book
+      .addCase(saveBook.fulfilled, (state, action) => {
+        state.unshift(action.payload);
+        localStorage.setItem("mvp_books", JSON.stringify(state));
+      })
+      // Edit book
+      .addCase(saveBookEdit.fulfilled, (state, action) => {
+        const idx = state.findIndex((b) => b.id === action.payload.id);
+        if (idx >= 0) state[idx] = action.payload;
+        localStorage.setItem("mvp_books", JSON.stringify(state));
+      })
+      // Delete book
+      .addCase(removeBookFromServer.fulfilled, (state, action) => {
+        const updated = state.filter((b) => b.id !== action.payload);
+        localStorage.setItem("mvp_books", JSON.stringify(updated));
+        return updated;
+      });
+  },
 });
 
 /* ==========================================================
-SECTION 4: Exports
+SECTION 5: Exports
 ========================================================== */
+
 export const {
   addBook,
   editBook,

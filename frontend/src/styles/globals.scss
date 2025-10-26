@@ -19,6 +19,7 @@ File: src/styles/globals.css
   --muted: #6b7280;
   --accent: #6d28d9;
   --card-bg: #ffffff;
+  --shadow: rgba(109, 40, 217, 0.25); /* ✅ soft purple glow for hover/focus */
 }
 
 [data-theme="dark"] {
@@ -26,6 +27,7 @@ File: src/styles/globals.css
   --text: #e6eef8;
   --muted: #9aa4b2;
   --card-bg: #101a33;
+  --shadow: rgba(109, 40, 217, 0.35); /* ✅ slightly brighter in dark mode */
 }
 
 /* =========================
@@ -45,6 +47,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 /* Ensures consistent centering and prevents horizontal scroll */
 main,
 section,
@@ -53,21 +56,18 @@ section,
   margin: 0 auto;
   width: 100%;
   max-width: 100vw;
-  padding-inline: 1rem; /* adds breathing room safely*/
+  padding-inline: 1rem;
 }
 
 /* =========================
    Center Main Content
-   - Centers horizontally on all screens
-   - Limits width for large displays
 ========================= */
 #root > div {
   width: 100%;
   margin: 0;
-  padding: 0 1rem; /* ✅ small side padding for mobile */
+  padding: 0 1rem;
 }
 
-/* ✅ On small screens, center text and layout horizontally */
 @media (max-width: 600px) {
   body {
     align-items: center;
@@ -78,8 +78,8 @@ section,
     padding: 0 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center; /* ✅ makes content centered */
-    text-align: center; /* optional: center text for narrow screens */
+    align-items: center;
+    text-align: center;
   }
 }
 
@@ -95,17 +95,42 @@ button {
   border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
   padding: 0.6rem 0.8rem;
   margin: 0.15rem 0;
+  background: var(--card-bg);
+  color: var(--text);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  outline: none;
 }
 
+/* ✅ Hover state — adds soft outer shadow */
+input:hover,
+textarea:hover,
+select:hover,
+button:hover {
+  box-shadow: 0 0 6px 2px var(--shadow);
+  border-color: var(--accent);
+}
+
+/* ✅ Focus state — stronger glow when selected (clicked or tabbed) */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+  box-shadow: 0 0 8px 3px var(--shadow);
+  border-color: var(--accent);
+}
+
+/* ✅ Buttons specifically keep accent background */
 button {
+  background: var(--accent);
+  color: #fff;
   cursor: pointer;
+  border: none;
 }
 
-/* =========================
-   Utility Containers
-========================= */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 1rem;
+button:hover {
+  box-shadow: 0 0 8px 3px var(--shadow);
+}
+
+button:focus {
+  box-shadow: 0 0 10px 4px var(--shadow);
 }

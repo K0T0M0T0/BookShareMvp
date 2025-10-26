@@ -8,7 +8,7 @@ import { nanoid } from "nanoid";
 
 export interface LogEntry {
   id: string;
-  type: "book" | "chapter" | "user";
+  type: "book" | "chapter" | "user" | string;
   action: string; // e.g. "created book", "deleted user"
   userId: string; // who did it
   targetId?: string; // optional: which item was affected

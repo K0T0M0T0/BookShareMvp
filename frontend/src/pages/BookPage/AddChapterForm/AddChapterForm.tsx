@@ -20,7 +20,7 @@ export default function AddChapterForm({ bookId }: { bookId: string }) {
     dispatch(addChapter({ bookId, title, content }));
     setTitle("");
     setContent("");
-    navigate("/updates");
+    navigate("/books/" + bookId);
   };
 
   return (

@@ -48,6 +48,7 @@
   width: 100%;
   padding: 0.6rem 0.7rem;
   border-radius: 8px;
+
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: transparent;
 }
@@ -66,8 +67,8 @@
 .submitBtn {
   padding: 0.6rem 1rem;
   border-radius: 8px;
-  background: var(--accent-color);
-  color: #fff;
+  background: var(--accent);
+  color: var(--text);
   border: none;
   font-weight: 600;
 }
