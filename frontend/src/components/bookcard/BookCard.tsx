@@ -271,9 +271,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
       </div>
 
       {/* ✅ Extension appears only after 3s hover, if no bookmark/menu active */}
-      {showExtension && (
-        <ExtensionCard book={book} onClose={() => setShowExtension(false)} />
-      )}
+      {showExtension && <ExtensionCard book={book} />}
     </>
   );
 };

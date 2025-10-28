@@ -6,12 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { addBook } from "../../store/Slices/booksSlice";
 import type { AppDispatch, RootState } from "../../store/store";
 import styles from "./CreateBookForm.module.css";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateBookForm() {
   // Redux
   const dispatch = useDispatch<AppDispatch>();
   const session = useSelector((s: RootState) => s.session);
   // Form state
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
@@ -55,6 +57,7 @@ export default function CreateBookForm() {
     setGenres("");
     setTags("");
     setCoverUrl("");
+    navigate("/");
   };
 
   return (

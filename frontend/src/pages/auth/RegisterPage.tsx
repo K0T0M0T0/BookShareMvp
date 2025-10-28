@@ -7,8 +7,10 @@ import { register as regAction } from "../../store/Slices/usersSlice";
 import { login } from "../../store/Slices/sessionSlice";
 import type { AppDispatch } from "../../store/store";
 import styles from "./auth.module.css";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -66,6 +68,7 @@ export default function RegisterPage() {
       (u: any) => u.email.toLowerCase() === email.toLowerCase()
     );
     if (newUser) dispatch(login({ userId: newUser.id }));
+    navigate("/");
   };
 
   /* =========================
