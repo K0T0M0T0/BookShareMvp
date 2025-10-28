@@ -44,7 +44,7 @@ const usersSlice = createSlice({
     ) {
       const user: User = {
         id: nanoid(),
-        isAdmin: true, // ✅ enforce non-admin
+        isAdmin: false, // ✅ enforce non-admin
         banned: false,
         ...action.payload,
       };

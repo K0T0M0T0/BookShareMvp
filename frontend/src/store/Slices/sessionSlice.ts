@@ -87,7 +87,9 @@ const sessionSlice = createSlice({
       state.token = null;
 
       // Remove from localStorage so it doesn't auto-login next time
-      localStorage.setItem("mvp_session", JSON.stringify(state));
+      localStorage.removeItem("mvp_session");
+      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("adminId");
     },
 
     /* ========================================================

@@ -69,13 +69,15 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
     adminAuthService.logout();
     navigate("/");
   };
-  const [isAdmin, setIsAdmin] = React.useState(adminAuthService.isAdmin());
+  /*const [isAdmin, setIsAdmin] = React.useState(adminAuthService.isAdmin());
+  console.log(isAdmin);
+
   React.useEffect(() => {
     const handleStorageChange = () => setIsAdmin(adminAuthService.isAdmin());
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-
+*/
   return (
     <div className={styles.shell}>
       {/* =========================
@@ -110,7 +112,7 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
           ))}
 
           {/* ✅ Show Admin Zone if logged in as admin */}
-          {isAdmin && (
+          {localStorage.getItem("isAdmin") && (
             <button
               className={`${styles.NavbarBtn} ${styles.btn}`}
               onClick={() => navigate("/admin")}
