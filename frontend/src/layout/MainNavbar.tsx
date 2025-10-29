@@ -7,15 +7,15 @@ import { useNavigate } from "react-router-dom";
 import styles from "./MainNavbar.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store/store";
-import { logout } from "../store/Slices/sessionSlice";
-import { adminAuthService } from "../features/admin/services/adminAuthService";
+//import { logout } from "../store/Slices/sessionSlice";
+//import { adminAuthService } from "../features/admin/services/adminAuthService";
 import ProfileImage from "../components/ProfileImage"; // adjust path if needed
 
-interface ProfileImageProps {
+/*interface ProfileImageProps {
   src?: string | null;
   size?: number;
   className?: string;
-}
+}*/
 interface NavButton {
   text: string;
   path: string;
@@ -32,7 +32,7 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
   // ===== Admin and Session =====
 
   const session = useSelector((s: RootState) => s.session);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // ===== Navigation Buttons =====
@@ -64,11 +64,11 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
   }, [theme]);
 
   // ===== Logout =====
-  const onLogout = () => {
+  /*  const onLogout = () => {
     dispatch(logout());
     adminAuthService.logout();
     navigate("/");
-  };
+  };*/
   /*const [isAdmin, setIsAdmin] = React.useState(adminAuthService.isAdmin());
   console.log(isAdmin);
 
