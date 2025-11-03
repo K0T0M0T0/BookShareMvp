@@ -1,30 +1,13 @@
 {
   "compilerOptions": {
-    /* === File Structure === */
-    "rootDir": "./src",
-    "outDir": "./dist",
-
-    /* === Target Environment === */
     "target": "ES2020",
-    "module": "CommonJS",
-    "lib": ["ES2020"],
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-
-    /* === Node.js Support === */
-    "types": ["node"],
-
-    /* === Type Safety === */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* === Source Maps & Declarations (optional) === */
-    "sourceMap": true,
-    "declaration": false,
-
-    /* === Extra (optional but useful) === */
-    "resolveJsonModule": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

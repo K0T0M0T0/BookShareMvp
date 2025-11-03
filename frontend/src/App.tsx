@@ -16,7 +16,6 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/profile/profilePage";
 import CollectionsPage from "./pages/collections/collections";
-
 import SearchPage from "./pages/search/SearchPage";
 
 // Main app with routes. AppShell contains navbar and theme control.

@@ -1,45 +1,30 @@
+// backend/src/server.ts
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import clientPromise from "./config/mongoClient";
+import cors from "cors";
+import connectDB from "./config/db";
+import bookRoutes from "./routes/booksRoutes";
+import userRoutes from "./routes/usersRoutes";
+import readingListRoutes from "./routes/readingListsRoutes";
 
 dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+// DB Connection
+connectDB();
 
-app.get("/", async (_req, res) => {
-  res.send("📚 BookShareMVP backend running with MongoDB driver!");
-});
+// Routes
+app.use("/api/books", bookRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/reading-lists", readingListRoutes);
 
-// Example route: get all books
-app.get("/api/books", async (_req, res) => {
-  try {
-    const client = await clientPromise;
-    const db = client.db("booksharemvp");
-    const books = await db.collection("books").find().toArray();
-    res.json(books);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Default
+app.get("/", (_req, res) => res.send("📚 BookShare Backend Running"));
 
-// Example route: add a book
-app.post("/api/books", async (req, res) => {
-  try {
-    const client = await clientPromise;
-    const db = client.db("booksharemvp");
-    const result = await db.collection("books").insertOne(req.body);
-    res.status(201).json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error adding book" });
-  }
-});
-
-app.listen(PORT, () =>
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-);
+// Start server
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
