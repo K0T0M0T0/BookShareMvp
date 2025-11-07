@@ -1,7 +1,6 @@
-// backend/src/routes/bookRoutes.ts
 import express from "express";
 import {
-  getAllBooks,
+  getBooks,
   createBook,
   updateBook,
   deleteBook,
@@ -9,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get("/", getAllBooks);
+router.get("/", getBooks);
 router.post("/", createBook);
 router.put("/:id", updateBook);
 router.delete("/:id", deleteBook);

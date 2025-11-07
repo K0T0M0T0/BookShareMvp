@@ -27,7 +27,7 @@ export default function BookHeader({ book }: { book: Book }) {
         <p className={styles.description}>{book.description}</p>
 
         <div className={styles.actions}>
-          <RatingBlock id={book.id} value={book.rating || 0} />
+          <RatingBlock  value={book.rating || 0} />
         </div>
       </div>
     </div>

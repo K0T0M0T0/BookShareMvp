@@ -9,6 +9,12 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
 import { addLog } from "./logsSlice";
 import type { AppDispatch } from "../store";
+import {
+  fetchAllBooks,
+  createBook,
+  updateBook,
+  deleteBook,
+} from "../../api/booksApi";
 
 /* ==========================================================
 SECTION 1: Data structure definitions

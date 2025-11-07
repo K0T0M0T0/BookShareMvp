@@ -1,7 +1,6 @@
-// backend/src/models/Book.ts
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IChapter {
+export interface Chapter {
   id: string;
   title: string;
   content: string;
@@ -15,7 +14,7 @@ export interface IBook extends Document {
   description: string;
   chapterAmount: number;
   status: "finished" | "ongoing" | "dropped";
-  chapters: IChapter[];
+  chapters: Chapter[];
   genres: string[];
   tags: string[];
   uploaderId: string | null;
@@ -24,19 +23,22 @@ export interface IBook extends Document {
   approved?: boolean;
 }
 
-const ChapterSchema = new Schema<IChapter>({
-  id: { type: String, required: true },
-  title: String,
-  content: String,
-  index: Number,
-  createdAt: String,
-});
+const ChapterSchema = new Schema<Chapter>(
+  {
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    index: { type: Number, required: true },
+    createdAt: { type: String },
+  },
+  { _id: false }
+);
 
 const BookSchema = new Schema<IBook>(
   {
     title: { type: String, required: true },
-    author: String,
-    description: String,
+    author: { type: String, required: true },
+    description: { type: String, required: true },
     chapterAmount: { type: Number, default: 0 },
     status: {
       type: String,
@@ -44,11 +46,11 @@ const BookSchema = new Schema<IBook>(
       default: "ongoing",
     },
     chapters: [ChapterSchema],
-    genres: [String],
-    tags: [String],
+    genres: [{ type: String }],
+    tags: [{ type: String }],
     uploaderId: { type: String, default: null },
     rating: { type: Number, default: null },
-    coverUrl: String,
+    coverUrl: { type: String },
     approved: { type: Boolean, default: false },
   },
   { timestamps: true }
