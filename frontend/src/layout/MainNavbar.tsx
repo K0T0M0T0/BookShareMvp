@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import styles from "./MainNavbar.module.scss";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store/store";
+
+
+
 //import { logout } from "../store/Slices/sessionSlice";
 //import { adminAuthService } from "../features/admin/services/adminAuthService";
 import ProfileImage from "../components/ProfileImage"; // adjust path if needed
@@ -63,21 +66,6 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem("mvp_theme", theme);
   }, [theme]);
 
-  // ===== Logout =====
-  /*  const onLogout = () => {
-    dispatch(logout());
-    adminAuthService.logout();
-    navigate("/");
-  };*/
-  /*const [isAdmin, setIsAdmin] = React.useState(adminAuthService.isAdmin());
-  console.log(isAdmin);
-
-  React.useEffect(() => {
-    const handleStorageChange = () => setIsAdmin(adminAuthService.isAdmin());
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-*/
   return (
     <div className={styles.shell}>
       {/* =========================

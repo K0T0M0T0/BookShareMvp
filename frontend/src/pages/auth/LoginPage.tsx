@@ -3,12 +3,12 @@ File: src/pages/auth/LoginPage.tsx
 ========================= */
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login } from "../../store/Slices/sessionSlice";
+import { login as loginAction } from "../../store/Slices/sessionSlice";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../../store/store";
 import styles from "./auth.module.css";
 import { adminAuthService } from "../../features/admin/services/adminAuthService";
-import { loginUser } from "../../api/usersApi";
+import { loginUser as apiLoginUser } from "../../api/usersApi";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,35 +21,24 @@ export default function LoginPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
     try {
-      const u = await loginUser(email, password);
+      const data = await apiLoginUser(email, password);
 
-      if (u.banned) {
-        setError("This account is banned.");
-        setLoading(false);
-        return;
-      }
+      // 🔥 Save into Redux session
+      dispatch(
+        loginAction({
+          userId: data.user.id,
+          userName: data.user.username,
+          isAdmin: data.user.isAdmin,
+          userProfileUrl: null,
+          token: data.token,
+        })
+      );
 
-      // ✅ Update Redux session
-      dispatch(login({ userId: u.id }));
-
-      // ✅ Admin check
-      if (u.isAdmin) {
-        localStorage.setItem("isAdmin", "true");
-        localStorage.setItem("adminId", u.id);
-        console.log("✅ Logged in as admin");
-      } else {
-        localStorage.removeItem("isAdmin");
-        localStorage.removeItem("adminId");
-        console.log("👤 Logged in as regular user");
-      }
-
-      navigate("/"); // redirect to home or wherever you like
+      navigate("/");
     } catch (err: any) {
-      setError(err.message || "Invalid credentials");
-      setLoading(false);
+      setError(err.message || "Login failed");
     }
   };
 

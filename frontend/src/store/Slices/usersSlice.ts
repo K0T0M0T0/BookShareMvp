@@ -1,12 +1,13 @@
 /* ==========================================================
 File: src/store/Slices/usersSlice.ts
-Purpose: Manage user accounts (registration, admin, bans)
-and log all important user-related actions.
+Purpose: Manage user accounts (admin only)
 ========================================================== */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { addLog } from "./logsSlice"; // ✅ log slice for admin audit trail
+import type { RootState } from "../store";
+import { addLog } from "./logsSlice";
+
 import {
   fetchAllUsers,
   registerUser as registerUserApi,
@@ -15,87 +16,90 @@ import {
 } from "../../api/usersApi";
 
 /* ==========================================================
-SECTION 1: User model definition
+SECTION 1: User model
 ========================================================== */
 export interface User {
   id: string;
   username: string;
   email: string;
-  password: string;
   avatar?: string;
-  isAdmin?: boolean; // determines if user has admin privileges
-  banned?: boolean; // determines if user is banned
+  isAdmin?: boolean;
+  banned?: boolean;
 }
 
 /* ==========================================================
-SECTION 2: Load saved users or empty array
+SECTION 2: Initial state
 ========================================================== */
 const initial: User[] = [];
 
 /* ==========================================================
-SECTION 3: Async Thunks
+SECTION 3: Async Thunks (with JWT token)
 ========================================================== */
 
-export const loadUsers = createAsyncThunk("users/loadAll", async () => {
-  return await fetchAllUsers();
-});
+// Load all users (admin only)
+export const loadUsers = createAsyncThunk<User[], void, { state: RootState }>(
+  "users/loadAll",
+  async (_, { getState }) => {
+    const token = getState().session.token;
+    return await fetchAllUsers(token!);
+  }
+);
 
+// Register user (public)
 export const registerUserThunk = createAsyncThunk(
   "users/register",
-  async (user: Omit<User, "id" | "isAdmin" | "banned">) => {
-    const newUser = {
-      ...user,
-      isAdmin: false,
-      banned: false,
-    };
-    return await registerUserApi(newUser);
+  async (user: { username: string; email: string; password: string }) => {
+    return await registerUserApi(user);
   }
 );
 
-export const updateUserThunk = createAsyncThunk(
-  "users/update",
-  async ({ id, data }: { id: string; data: Partial<User> }) => {
-    return await updateUserApi(id, data);
-  }
-);
+// Update user (admin only)
+export const updateUserThunk = createAsyncThunk<
+  User,
+  { id: string; data: Partial<User> },
+  { state: RootState }
+>("users/update", async ({ id, data }, { getState }) => {
+  const token = getState().session.token;
+  return await updateUserApi(id, data, token!);
+});
 
-export const deleteUserThunk = createAsyncThunk(
-  "users/delete",
-  async (id: string) => {
-    return await deleteUserApi(id);
-  }
-);
+// Delete user (admin only)
+export const deleteUserThunk = createAsyncThunk<
+  { id: string },
+  string,
+  { state: RootState }
+>("users/delete", async (id, { getState }) => {
+  const token = getState().session.token;
+  return await deleteUserApi(id, token!);
+});
 
-export const toggleBanThunk = createAsyncThunk(
-  "users/toggleBan",
-  async ({ id, adminId }: { id: string; adminId?: string }) => {
-    const users = await fetchAllUsers();
-    const user = users.find((u: User) => u.id === id);
-    if (!user) throw new Error("User not found");
-    return await updateUserApi(id, { ...user, banned: !user.banned });
-  }
-);
+// Ban / Unban user
+export const toggleBanThunk = createAsyncThunk<
+  User,
+  string,
+  { state: RootState }
+>("users/toggleBan", async (id, { getState }) => {
+  const token = getState().session.token;
+  const allUsers = await fetchAllUsers(token!);
 
-export const setAdminThunk = createAsyncThunk(
-  "users/setAdmin",
-  async ({
-    id,
-    value,
-    adminId,
-  }: {
-    id: string;
-    value: boolean;
-    adminId?: string;
-  }) => {
-    const users = await fetchAllUsers();
-    const user = users.find((u: User) => u.id === id);
-    if (!user) throw new Error("User not found");
-    return await updateUserApi(id, { ...user, isAdmin: value });
-  }
-);
+  const user = allUsers.find((u: User) => u.id === id);
+  if (!user) throw new Error("User not found");
+
+  return await updateUserApi(id, { banned: !user.banned }, token!);
+});
+
+// Promote / demote admin
+export const setAdminThunk = createAsyncThunk<
+  User,
+  { id: string; value: boolean },
+  { state: RootState }
+>("users/setAdmin", async ({ id, value }, { getState }) => {
+  const token = getState().session.token;
+  return await updateUserApi(id, { isAdmin: value }, token!);
+});
 
 /* ==========================================================
-SECTION 4: Slice setup
+SECTION 4: Slice Logic
 ========================================================== */
 const usersSlice = createSlice({
   name: "users",
@@ -103,98 +107,37 @@ const usersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Load all users
       .addCase(loadUsers.fulfilled, (_, action) => {
         return action.payload;
       })
-      .addCase(registerUserThunk.fulfilled, (state, action) => {
-        state.push(action.payload);
-        const logData = {
-          id: action.payload.id,
-          username: action.payload.username,
-          email: action.payload.email,
-        };
-        setTimeout(() => {
-          (window as any).store?.dispatch(
-            addLog({
-              type: "user",
-              action: `Registered new user "${logData.username}"`,
-              userId: logData.id,
-              targetId: logData.id,
-              extra: `Email: ${logData.email}`,
-            })
-          );
-        });
-      })
+
+      // Update user
       .addCase(updateUserThunk.fulfilled, (state, action) => {
         const idx = state.findIndex((u) => u.id === action.payload.id);
-        if (idx >= 0) {
-          const oldUser = state[idx];
-          state[idx] = action.payload;
-          const changed = Object.keys(action.payload).filter(
-            (key) => (oldUser as any)[key] !== (action.payload as any)[key]
-          );
-          setTimeout(() => {
-            (window as any).store?.dispatch(
-              addLog({
-                type: "user",
-                action: `Updated profile for "${action.payload.username}"`,
-                userId: action.payload.id,
-                targetId: action.payload.id,
-                extra: `Changed fields: ${changed.join(", ")}`,
-              })
-            );
-          });
-        }
+        if (idx >= 0) state[idx] = action.payload;
       })
+
+      // Delete user
       .addCase(deleteUserThunk.fulfilled, (state, action) => {
-        // The backend returns { id: string }
         return state.filter((u) => u.id !== action.payload.id);
       })
+
+      // Toggle ban
       .addCase(toggleBanThunk.fulfilled, (state, action) => {
         const idx = state.findIndex((u) => u.id === action.payload.id);
-        if (idx >= 0) {
-          state[idx] = action.payload;
-          const logData = action.payload;
-          setTimeout(() => {
-            (window as any).store?.dispatch(
-              addLog({
-                type: "user",
-                action: logData.banned
-                  ? `Banned user "${logData.username}"`
-                  : `Unbanned user "${logData.username}"`,
-                userId: "admin",
-                targetId: logData.id,
-                extra: `Email: ${logData.email}`,
-              })
-            );
-          });
-        }
+        if (idx >= 0) state[idx] = action.payload;
       })
+
+      // Set admin
       .addCase(setAdminThunk.fulfilled, (state, action) => {
         const idx = state.findIndex((u) => u.id === action.payload.id);
-        if (idx >= 0) {
-          state[idx] = action.payload;
-          const logData = action.payload;
-          setTimeout(() => {
-            (window as any).store?.dispatch(
-              addLog({
-                type: "user",
-                action: logData.isAdmin
-                  ? `Promoted "${logData.username}" to admin`
-                  : `Revoked admin from "${logData.username}"`,
-                userId: "admin",
-                targetId: logData.id,
-                extra: `Email: ${logData.email}`,
-              })
-            );
-          });
-        }
+        if (idx >= 0) state[idx] = action.payload;
       });
   },
 });
 
 /* ==========================================================
-SECTION 5: Exports
+SECTION 5: Export reducer
 ========================================================== */
-
 export default usersSlice.reducer;

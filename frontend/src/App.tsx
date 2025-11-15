@@ -23,21 +23,25 @@ import { loadBooks } from "./store/Slices/booksSlice";
 import { loadUsers } from "./store/Slices/usersSlice";
 import { loadReadingLists } from "./store/Slices/readingListsSlice";
 import type { AppDispatch, RootState } from "./store/store";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoutes"; //"/components/ProtectedAdminRoute";
 
 // Main app with routes. AppShell contains navbar and theme control.
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();
   const session = useSelector((s: RootState) => s.session);
-  const isAdmin = adminAuthService.isAdmin();
+  const isAdmin = session.isAdmin; // ✅ FIXED
 
-  // Load initial data from backend
   useEffect(() => {
     dispatch(loadBooks());
-    dispatch(loadUsers());
+    if (session.token) {
+      dispatch(loadUsers());
+    }
+
     if (session.userId) {
       dispatch(loadReadingLists(session.userId));
     }
   }, [dispatch, session.userId]);
+
   return (
     <BrowserRouter>
       <MainNavbar>
@@ -52,13 +56,17 @@ export default function App() {
           <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/collections/:id" element={<CollectionsPage />} />
           <Route path="/search" element={<SearchPage />} />
+
+          {/* =================================
+              ADMIN ROUTES (SECURE)
+          ================================= */}
           {isAdmin && (
             <Route
               path="/admin"
               element={
-                <div>
+                <ProtectedAdminRoute>
                   <AdminZoneNav />
-                </div>
+                </ProtectedAdminRoute>
               }
             >
               <Route path="users" element={<UsersPage />} />
