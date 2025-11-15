@@ -2,25 +2,41 @@
 File: src/components/books/AddChapterForm.tsx
 ========================= */
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addChapter } from "../../../store/Slices/booksSlice";
-import type { AppDispatch } from "../../../store/store";
+import { addChapterToBook } from "../../../store/Slices/booksSlice";
+import type { AppDispatch, RootState } from "../../../store/store";
 import styles from "./AddChapterForm.module.css";
 
 export default function AddChapterForm({ bookId }: { bookId: string }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const session = useSelector((s: RootState) => s.session);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(addChapter({ bookId, title, content }));
-    setTitle("");
-    setContent("");
-    navigate("/books/" + bookId);
+    if (!title.trim() || !content.trim()) return;
+    setLoading(true);
+    try {
+      await dispatch(
+        addChapterToBook({
+          bookId,
+          title,
+          content,
+          userId: session.userId,
+        })
+      ).unwrap();
+      setTitle("");
+      setContent("");
+      navigate("/books/" + bookId);
+    } catch (err) {
+      alert("Failed to add chapter");
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,8 +71,12 @@ export default function AddChapterForm({ bookId }: { bookId: string }) {
               />
             </div>
             <div className={styles.actions}>
-              <button className={styles.submitBtn} type="submit">
-                Add
+              <button
+                className={styles.submitBtn}
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Adding..." : "Add"}
               </button>
             </div>
           </form>

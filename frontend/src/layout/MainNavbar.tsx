@@ -112,7 +112,7 @@ export const MainNavbar: React.FC<{ children: React.ReactNode }> = ({
           ))}
 
           {/* ✅ Show Admin Zone if logged in as admin */}
-          {localStorage.getItem("isAdmin") && (
+          {session.isAdmin && (
             <button
               className={`${styles.NavbarBtn} ${styles.btn}`}
               onClick={() => navigate("/admin")}

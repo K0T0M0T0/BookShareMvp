@@ -3,7 +3,7 @@ File: src/pages/auth/RegisterPage.tsx
 ========================= */
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { register as regAction } from "../../store/Slices/usersSlice";
+import { registerUserThunk } from "../../store/Slices/usersSlice";
 import { login } from "../../store/Slices/sessionSlice";
 import type { AppDispatch } from "../../store/store";
 import styles from "./auth.module.css";
@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   /* =========================
      Validate email format
@@ -29,46 +30,40 @@ export default function RegisterPage() {
   /* =========================
      Handle form submission
   ========================= */
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    // Load existing users
-    const users = JSON.parse(localStorage.getItem("mvp_users") || "[]");
+    setLoading(true);
 
     // 1️⃣ Check if any field empty
     if (!username || !email || !password) {
       setError("All fields are required.");
+      setLoading(false);
       return;
     }
 
     // 2️⃣ Check if email format valid
     if (!isValidEmail(email)) {
       setError("Please enter a valid email address.");
+      setLoading(false);
       return;
     }
 
-    // 3️⃣ Check if email already exists
-    const existingUser = users.find(
-      (u: any) => u.email.toLowerCase() === email.toLowerCase()
-    );
-    if (existingUser) {
-      setError(
-        "This email is already in use. Please log in or use another email."
-      );
-      return;
+    try {
+      // 3️⃣ Register user
+      const result = await dispatch(
+        registerUserThunk({ username, email, password })
+      ).unwrap();
+
+      // 4️⃣ Auto login newest user
+      if (result) {
+        dispatch(login({ userId: result.id }));
+        navigate("/");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to register. Email may already be in use.");
+      setLoading(false);
     }
-
-    // 4️⃣ Register user
-    dispatch(regAction({ username, email, password }));
-
-    // 5️⃣ Auto login newest user
-    const updatedUsers = JSON.parse(localStorage.getItem("mvp_users") || "[]");
-    const newUser = updatedUsers.find(
-      (u: any) => u.email.toLowerCase() === email.toLowerCase()
-    );
-    if (newUser) dispatch(login({ userId: newUser.id }));
-    navigate("/");
   };
 
   /* =========================
@@ -98,7 +93,9 @@ export default function RegisterPage() {
         placeholder="Password"
       />
 
-      <button type="submit">Create account</button>
+      <button type="submit" disabled={loading}>
+        {loading ? "Creating account..." : "Create account"}
+      </button>
     </form>
   );
 }

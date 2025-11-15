@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
-import { updateProfile } from "../../store/Slices/usersSlice";
+import { updateUserThunk } from "../../store/Slices/usersSlice";
 import { logout } from "../../store/Slices/sessionSlice"; // ✅ import logout
 import { Check, X, LogOut } from "lucide-react"; // ✅ icon for logout
 import styles from "./ProfilePage.module.scss";
@@ -21,10 +21,16 @@ export default function ProfilePage() {
 
   if (!me) return <p>Please login to see your profile</p>;
 
-  const save = () => {
-    dispatch(updateProfile({ id: me.id, data: { username: nick, avatar } }));
-    setEditing(false);
-    alert("Saved");
+  const save = async () => {
+    try {
+      await dispatch(
+        updateUserThunk({ id: me.id, data: { username: nick, avatar } })
+      ).unwrap();
+      setEditing(false);
+      alert("Saved");
+    } catch (err) {
+      alert("Failed to update profile");
+    }
   };
 
   const cancel = () => {

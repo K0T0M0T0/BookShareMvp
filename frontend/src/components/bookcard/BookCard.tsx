@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import {
-  addToList,
-  removeFromList,
+  addToListThunk,
+  removeFromListThunk,
   type BuiltInList,
 } from "../../store/Slices/readingListsSlice";
 import { Bookmark, ImageOff } from "lucide-react";
@@ -140,7 +140,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
         );
       }
     } catch {}
-    dispatch(addToList({ userId, bookId: book.id, list } as any));
+    dispatch(addToListThunk({ userId, bookId: book.id, list }));
     setMenuOpen(false);
   };
 
@@ -164,7 +164,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
         );
       }
     } catch {}
-    dispatch(removeFromList({ userId, bookId: book.id }));
+    dispatch(removeFromListThunk({ userId, bookId: book.id }));
     setMenuOpen(false);
   };
 

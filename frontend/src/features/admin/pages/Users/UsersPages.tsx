@@ -4,7 +4,7 @@ File: src/features/admin/pages/Users/UsersPage.tsx
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../../store/store";
-import { toggleBan, setAdmin } from "../../../../store/Slices/usersSlice";
+import { toggleBanThunk, setAdminThunk } from "../../../../store/Slices/usersSlice";
 import styles from "./UsersPage.module.scss";
 
 export default function UsersPage() {
@@ -17,11 +17,11 @@ export default function UsersPage() {
   const regular = users.filter((u) => !u.isAdmin && !u.banned);
 
   const handleBanToggle = (id: string) => {
-    dispatch(toggleBan({ id }));
+    dispatch(toggleBanThunk({ id }));
   };
 
   const handleAdminToggle = (id: string, value: boolean) => {
-    dispatch(setAdmin({ id, value }));
+    dispatch(setAdminThunk({ id, value }));
   };
 
   const renderUserTable = (title: string, list: typeof users) => (

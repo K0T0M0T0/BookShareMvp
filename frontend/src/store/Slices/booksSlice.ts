@@ -48,37 +48,7 @@ export interface Book {
 SECTION 2: Initial Data Setup
 ========================================================== */
 
-const sample: Book[] = JSON.parse(
-  localStorage.getItem("mvp_books") || "null"
-) || [
-  {
-    id: nanoid(),
-    title: "Sample: Learn C & React",
-    author: "Community",
-    description: "A short sample book to showcase the MVP features.",
-    chapterAmount: 2,
-    status: "ongoing",
-    chapters: [
-      {
-        id: nanoid(),
-        title: "Intro",
-        content: "Welcome to chapter 1",
-        index: 1,
-      },
-      {
-        id: nanoid(),
-        title: "Setup",
-        content: "Setup instructions in chapter 2",
-        index: 2,
-      },
-    ],
-    genres: ["education"],
-    tags: ["c", "react"],
-    uploaderId: null,
-    rating: 4.5,
-    approved: true,
-  },
-];
+const initial: Book[] = [];
 
 /* ==========================================================
 SECTION 3: Async Thunks (backend connection)
@@ -113,131 +83,164 @@ export const removeBookFromServer = createAsyncThunk(
   }
 );
 
+// Add chapter to a book
+export const addChapterToBook = createAsyncThunk(
+  "books/addChapter",
+  async ({
+    bookId,
+    title,
+    content,
+    userId,
+  }: {
+    bookId: string;
+    title: string;
+    content: string;
+    userId?: string;
+  }) => {
+    // First get the book, add chapter locally, then update
+    const books = await fetchAllBooks();
+    const book = books.find((b: Book) => b.id === bookId);
+    if (!book) throw new Error("Book not found");
+
+    const newChapter = {
+      id: nanoid(),
+      title,
+      content,
+      index: book.chapters.length + 1,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedChapters = [...book.chapters, newChapter];
+    const updatedBook = await updateBook(bookId, {
+      ...book,
+      chapters: updatedChapters,
+      chapterAmount: updatedChapters.length,
+    });
+
+    return { book: updatedBook, chapter: newChapter, userId };
+  }
+);
+
+// Rate a book
+export const rateBookOnServer = createAsyncThunk(
+  "books/rate",
+  async ({ id, rating }: { id: string; rating: number }) => {
+    const books = await fetchAllBooks();
+    const book = books.find((b: Book) => b.id === id);
+    if (!book) throw new Error("Book not found");
+
+    const newRating =
+      book.rating === null
+        ? rating
+        : (book.rating + rating) / 2;
+
+    return await updateBook(id, { ...book, rating: newRating });
+  }
+);
+
+// Approve a book
+export const approveBookOnServer = createAsyncThunk(
+  "books/approve",
+  async ({ id, adminId }: { id: string; adminId?: string }) => {
+    const books = await fetchAllBooks();
+    const book = books.find((b: Book) => b.id === id);
+    if (!book) throw new Error("Book not found");
+
+    const updated = await updateBook(id, { ...book, approved: true });
+    return { book: updated, adminId };
+  }
+);
+
+// Reject a book
+export const rejectBookOnServer = createAsyncThunk(
+  "books/reject",
+  async ({ id, adminId }: { id: string; adminId?: string }) => {
+    const books = await fetchAllBooks();
+    const book = books.find((b: Book) => b.id === id);
+    if (!book) throw new Error("Book not found");
+
+    const updated = await updateBook(id, { ...book, approved: false });
+    return { book: updated, adminId };
+  }
+);
+
 /* ==========================================================
 SECTION 4: Slice Definition
 ========================================================== */
 
 const booksSlice = createSlice({
   name: "books",
-  initialState: sample,
-  reducers: {
-    /* ========================================================
-    LOCAL ACTIONS (stay the same)
-    ======================================================== */
-    addBook(
-      state,
-      action: PayloadAction<Omit<Book, "id" | "chapters" | "chapterAmount">>
-    ) {
-      const payload = action.payload as any;
-
-      const b: Book = {
-        id: nanoid(),
-        chapters: [],
-        chapterAmount: 0,
-        rating: 0,
-        approved: false,
-        ...payload,
-      };
-
-      state.unshift(b);
-      localStorage.setItem("mvp_books", JSON.stringify(state));
-    },
-
-    editBook(
-      state,
-      action: PayloadAction<{ id: string; data: Partial<Book> }>
-    ) {
-      const bk = state.find((b) => b.id === action.payload.id);
-      if (bk) Object.assign(bk, action.payload.data);
-      localStorage.setItem("mvp_books", JSON.stringify(state));
-    },
-
-    removeBook(state, action: PayloadAction<{ id: string; adminId?: string }>) {
-      const book = state.find((b) => b.id === action.payload.id);
-      const res = state.filter((b) => b.id !== action.payload.id);
-      localStorage.setItem("mvp_books", JSON.stringify(res));
-
-      if (book) {
+  initialState: initial,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // Fetch all books
+      .addCase(loadBooks.fulfilled, (_, action) => {
+        return action.payload;
+      })
+      // Save new book
+      .addCase(saveBook.fulfilled, (state, action) => {
+        state.unshift(action.payload);
+      })
+      // Edit book
+      .addCase(saveBookEdit.fulfilled, (state, action) => {
+        const idx = state.findIndex((b) => b.id === action.payload.id);
+        if (idx >= 0) state[idx] = action.payload;
+      })
+      // Delete book
+      .addCase(removeBookFromServer.fulfilled, (state, action) => {
+        const book = state.find((b) => b.id === action.payload);
+        if (book) {
+          setTimeout(() => {
+            (window as any).store?.dispatch(
+              addLog({
+                type: "book",
+                action: `Deleted book "${book.title}"`,
+                userId: "unknown",
+                targetId: book.id,
+                extra: `Author: ${book.author}`,
+              })
+            );
+          });
+        }
+        return state.filter((b) => b.id !== action.payload);
+      })
+      // Add chapter
+      .addCase(addChapterToBook.fulfilled, (state, action) => {
+        const idx = state.findIndex((b) => b.id === action.payload.book.id);
+        if (idx >= 0) {
+          state[idx] = action.payload.book;
+        }
+        const logData = {
+          bookTitle: action.payload.book.title,
+          bookId: action.payload.book.id,
+          chapterTitle: action.payload.chapter.title,
+          userId: action.payload.userId || "unknown",
+        };
         setTimeout(() => {
           (window as any).store?.dispatch(
             addLog({
-              type: "book",
-              action: `Deleted book "${book.title}"`,
-              userId: action.payload.adminId || "unknown",
-              targetId: book.id,
-              extra: `Author: ${book.author}`,
+              type: "chapter",
+              action: `Added chapter "${logData.chapterTitle}"`,
+              userId: logData.userId,
+              targetId: logData.bookId,
+              extra: `Book: ${logData.bookTitle}`,
             })
           );
         });
-      }
-
-      return res;
-    },
-
-    addChapter(
-      state,
-      action: PayloadAction<{
-        bookId: string;
-        title: string;
-        content: string;
-        userId?: string;
-      }>
-    ) {
-      const book = state.find((b) => b.id === action.payload.bookId);
-      if (!book) return;
-
-      const c = {
-        id: nanoid(),
-        title: action.payload.title,
-        content: action.payload.content,
-        index: book.chapters.length + 1,
-        createdAt: new Date().toISOString(),
-      };
-
-      book.chapters.push(c);
-      book.chapterAmount = book.chapters.length;
-      localStorage.setItem("mvp_books", JSON.stringify(state));
-
-      const logData = {
-        bookTitle: book.title,
-        bookId: book.id,
-        chapterTitle: c.title,
-        userId: action.payload.userId || "unknown",
-      };
-
-      setTimeout(() => {
-        (window as any).store?.dispatch(
-          addLog({
-            type: "chapter",
-            action: `Added chapter "${logData.chapterTitle}"`,
-            userId: logData.userId,
-            targetId: logData.bookId,
-            extra: `Book: ${logData.bookTitle}`,
-          })
-        );
-      });
-    },
-
-    rateBook(state, action: PayloadAction<{ id: string; rating: number }>) {
-      const b = state.find((x) => x.id === action.payload.id);
-      if (!b) return;
-      b.rating =
-        b.rating === null
-          ? action.payload.rating
-          : (b.rating + action.payload.rating) / 2;
-      localStorage.setItem("mvp_books", JSON.stringify(state));
-    },
-
-    approveBook(
-      state,
-      action: PayloadAction<{ id: string; adminId?: string }>
-    ) {
-      const b = state.find((x) => x.id === action.payload.id);
-      if (b) b.approved = true;
-      localStorage.setItem("mvp_books", JSON.stringify(state));
-
-      if (b) {
-        const logData = { ...b };
+      })
+      // Rate book
+      .addCase(rateBookOnServer.fulfilled, (state, action) => {
+        const idx = state.findIndex((b) => b.id === action.payload.id);
+        if (idx >= 0) state[idx] = action.payload;
+      })
+      // Approve book
+      .addCase(approveBookOnServer.fulfilled, (state, action) => {
+        const idx = state.findIndex((b) => b.id === action.payload.book.id);
+        if (idx >= 0) {
+          state[idx] = action.payload.book;
+        }
+        const logData = action.payload.book;
         setTimeout(() => {
           (window as any).store?.dispatch(
             addLog({
@@ -249,16 +252,14 @@ const booksSlice = createSlice({
             })
           );
         });
-      }
-    },
-
-    rejectBook(state, action: PayloadAction<{ id: string; adminId?: string }>) {
-      const b = state.find((x) => x.id === action.payload.id);
-      if (b) b.approved = false;
-      localStorage.setItem("mvp_books", JSON.stringify(state));
-
-      if (b) {
-        const logData = { ...b };
+      })
+      // Reject book
+      .addCase(rejectBookOnServer.fulfilled, (state, action) => {
+        const idx = state.findIndex((b) => b.id === action.payload.book.id);
+        if (idx >= 0) {
+          state[idx] = action.payload.book;
+        }
+        const logData = action.payload.book;
         setTimeout(() => {
           (window as any).store?.dispatch(
             addLog({
@@ -270,32 +271,6 @@ const booksSlice = createSlice({
             })
           );
         });
-      }
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      // Fetch all books
-      .addCase(loadBooks.fulfilled, (_, action) => {
-        localStorage.setItem("mvp_books", JSON.stringify(action.payload));
-        return action.payload;
-      })
-      // Save new book
-      .addCase(saveBook.fulfilled, (state, action) => {
-        state.unshift(action.payload);
-        localStorage.setItem("mvp_books", JSON.stringify(state));
-      })
-      // Edit book
-      .addCase(saveBookEdit.fulfilled, (state, action) => {
-        const idx = state.findIndex((b) => b.id === action.payload.id);
-        if (idx >= 0) state[idx] = action.payload;
-        localStorage.setItem("mvp_books", JSON.stringify(state));
-      })
-      // Delete book
-      .addCase(removeBookFromServer.fulfilled, (state, action) => {
-        const updated = state.filter((b) => b.id !== action.payload);
-        localStorage.setItem("mvp_books", JSON.stringify(updated));
-        return updated;
       });
   },
 });
@@ -303,15 +278,5 @@ const booksSlice = createSlice({
 /* ==========================================================
 SECTION 5: Exports
 ========================================================== */
-
-export const {
-  addBook,
-  editBook,
-  removeBook,
-  addChapter,
-  rateBook,
-  approveBook,
-  rejectBook,
-} = booksSlice.actions;
 
 export default booksSlice.reducer;

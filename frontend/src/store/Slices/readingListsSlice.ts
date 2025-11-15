@@ -5,8 +5,13 @@ has saved to different lists — such as "reading", "completed",
 "later", or even their own custom list.
 ========================================================== */
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import {
+  fetchUserReadingLists,
+  addBookToList,
+  removeBookFromList,
+} from "../../api/readingListsApi";
 
 /* ==========================================================
 SECTION 1: Types and Data Structure
@@ -14,7 +19,7 @@ SECTION 1: Types and Data Structure
 
 /*
 These are the built-in list categories users can assign books to.
-They describe a book’s status in the user’s personal library.
+They describe a book's status in the user's personal library.
 */
 export type BuiltInList = "completed" | "later" | "reading" | "dropped";
 
@@ -32,90 +37,80 @@ export interface ReadingListEntry {
 SECTION 2: Load Existing Data
 ========================================================== */
 
-/*
-Try to load saved reading lists from local storage.
-If none exist, start with an empty list.
-*/
-const initial: ReadingListEntry[] = JSON.parse(
-  localStorage.getItem("mvp_reading_lists") || "[]"
+const initial: ReadingListEntry[] = [];
+
+/* ==========================================================
+SECTION 3: Async Thunks
+========================================================== */
+
+export const loadReadingLists = createAsyncThunk(
+  "readingLists/load",
+  async (userId: string) => {
+    return await fetchUserReadingLists(userId);
+  }
+);
+
+export const addToListThunk = createAsyncThunk(
+  "readingLists/add",
+  async (data: {
+    userId: string;
+    bookId: string;
+    list: BuiltInList | string;
+  }) => {
+    return await addBookToList(data);
+  }
+);
+
+export const removeFromListThunk = createAsyncThunk(
+  "readingLists/remove",
+  async ({ userId, bookId }: { userId: string; bookId: string }) => {
+    await removeBookFromList(userId, bookId);
+    return { userId, bookId };
+  }
 );
 
 /* ==========================================================
-SECTION 3: The Main Slice
+SECTION 4: The Main Slice
 ========================================================== */
 
 const readingListsSlice = createSlice({
   name: "readingLists", // Unique name for this slice
   initialState: initial, // Starting data
-  reducers: {
-    /* ========================================================
-    ACTION: Add or Move a Book to a List
-    ----------------------------------------------------------
-    - If the book already exists in one of the user’s lists,
-      it updates the list name (e.g., moves from “reading” to “completed”).
-    - If it doesn’t exist yet, it adds a new entry.
-    ======================================================== */
-    addToList(
-      state,
-      action: PayloadAction<{
-        userId: string;
-        bookId: string;
-        list: BuiltInList | string;
-      }>
-    ) {
-      const { userId, bookId, list } = action.payload;
-
-      // Check if this user already has this book in any list
-      const existing = state.find(
-        (e) => e.userId === userId && e.bookId === bookId
-      );
-
-      if (existing) {
-        // If found, simply update the list name
-        existing.list = list;
-      } else {
-        // Otherwise, create a new list entry for this user-book combo
-        state.push({ userId, bookId, list });
-      }
-
-      // Save the updated list for future sessions
-      localStorage.setItem("mvp_reading_lists", JSON.stringify(state));
-    },
-
-    /* ========================================================
-    ACTION: Remove a Book from Lists
-    ----------------------------------------------------------
-    Deletes a book from the user’s reading lists entirely.
-    Useful when the user no longer wants the book in any category.
-    ======================================================== */
-    removeFromList(
-      state,
-      action: PayloadAction<{ userId: string; bookId: string }>
-    ) {
-      // Keep all items except the one that matches the user and book
-      const res = state.filter(
-        (e) =>
-          !(
-            e.userId === action.payload.userId &&
-            e.bookId === action.payload.bookId
-          )
-      );
-
-      // Save the updated list
-      localStorage.setItem("mvp_reading_lists", JSON.stringify(res));
-
-      // Return the new list to replace the old state
-      return res;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadReadingLists.fulfilled, (_, action) => {
+        return action.payload;
+      })
+      .addCase(addToListThunk.fulfilled, (state, action) => {
+        const { userId, bookId } = action.payload;
+        // Check if this user already has this book in any list
+        const existing = state.find(
+          (e) => e.userId === userId && e.bookId === bookId
+        );
+        if (existing) {
+          // If found, update the list name
+          existing.list = action.payload.list;
+        } else {
+          // Otherwise, create a new list entry
+          state.push(action.payload);
+        }
+      })
+      .addCase(removeFromListThunk.fulfilled, (state, action) => {
+        return state.filter(
+          (e) =>
+            !(
+              e.userId === action.payload.userId &&
+              e.bookId === action.payload.bookId
+            )
+        );
+      });
   },
 });
 
 /* ==========================================================
-SECTION 4: Export Actions and Reducer
+SECTION 5: Export Actions and Reducer
 ========================================================== */
-
-// These exports allow other parts of the app to add or remove books from lists.
-export const { addToList, removeFromList } = readingListsSlice.actions;
 
 // The reducer is the main data manager that the app uses to track reading lists.
 export default readingListsSlice.reducer;

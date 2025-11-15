@@ -1,7 +1,9 @@
 /* =========================
 File: src/App.tsx
 ========================= */
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { MainNavbar } from "./layout/MainNavbar";
 import Home from "./pages/Home/Home";
 import AdminZoneNav from "./features/admin/components/AdminNavbar";
@@ -17,10 +19,25 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/profile/profilePage";
 import CollectionsPage from "./pages/collections/collections";
 import SearchPage from "./pages/search/SearchPage";
+import { loadBooks } from "./store/Slices/booksSlice";
+import { loadUsers } from "./store/Slices/usersSlice";
+import { loadReadingLists } from "./store/Slices/readingListsSlice";
+import type { AppDispatch, RootState } from "./store/store";
 
 // Main app with routes. AppShell contains navbar and theme control.
 export default function App() {
+  const dispatch = useDispatch<AppDispatch>();
+  const session = useSelector((s: RootState) => s.session);
   const isAdmin = adminAuthService.isAdmin();
+
+  // Load initial data from backend
+  useEffect(() => {
+    dispatch(loadBooks());
+    dispatch(loadUsers());
+    if (session.userId) {
+      dispatch(loadReadingLists(session.userId));
+    }
+  }, [dispatch, session.userId]);
   return (
     <BrowserRouter>
       <MainNavbar>

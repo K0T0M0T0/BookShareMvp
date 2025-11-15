@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/books";
+const API_URL = "http://localhost:5000/api/users";
 
 /* Helper function to convert MongoDB _id to id */
 function convertMongoId(obj: any): any {
@@ -20,49 +20,54 @@ function convertMongoId(obj: any): any {
   return obj;
 }
 
-/* Fetch all books */
-export async function fetchAllBooks() {
+/* Fetch all users */
+export async function fetchAllUsers() {
   const res = await fetch(API_URL);
-  if (!res.ok) throw new Error("Failed to fetch books");
+  if (!res.ok) throw new Error("Failed to fetch users");
   const data = await res.json();
   return convertMongoId(data);
 }
 
-/* Fetch only approved books (optional use) */
-export async function fetchApprovedBooks() {
-  const res = await fetch(`${API_URL}?approved=true`);
-  if (!res.ok) throw new Error("Failed to fetch approved books");
-  const data = await res.json();
-  return convertMongoId(data);
-}
-
-/* Create a book */
-export async function createBook(book: any) {
+/* Register a new user */
+export async function registerUser(user: any) {
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(book),
+    body: JSON.stringify(user),
   });
-  if (!res.ok) throw new Error("Failed to create book");
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || "Failed to register user");
+  }
   const data = await res.json();
   return convertMongoId(data);
 }
 
-/* Update a book */
-export async function updateBook(id: string, data: any) {
+/* Update a user */
+export async function updateUser(id: string, data: any) {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update book");
+  if (!res.ok) throw new Error("Failed to update user");
   const data_res = await res.json();
   return convertMongoId(data_res);
 }
 
-/* Delete a book */
-export async function deleteBook(id: string) {
+/* Delete a user */
+export async function deleteUser(id: string) {
   const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to delete book");
-  return id;
+  if (!res.ok) throw new Error("Failed to delete user");
+  return res.json();
+}
+
+/* Login user (check credentials) */
+export async function loginUser(email: string, password: string) {
+  const users = await fetchAllUsers();
+  const user = users.find(
+    (u: any) => u.email === email && u.password === password
+  );
+  if (!user) throw new Error("Invalid credentials");
+  return user;
 }

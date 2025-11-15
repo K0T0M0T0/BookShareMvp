@@ -4,7 +4,7 @@ File: src/pages/books/components/BookActions.tsx
 
 import React from "react";
 import { useDispatch } from "react-redux";
-import { editBook, removeBook } from "../../../store/Slices/booksSlice";
+import { saveBookEdit, removeBookFromServer } from "../../../store/Slices/booksSlice";
 import type { AppDispatch } from "../../../store/store";
 import type { Book } from "../../../store/Slices/booksSlice";
 
@@ -17,7 +17,7 @@ export default function BookActions({ book }: { book: Book }) {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleFinish = () =>
-    dispatch(editBook({ id: book.id, data: { status: "finished" } }));
+    dispatch(saveBookEdit({ id: book.id, data: { status: "finished" } }));
 
   const handleDelete = () => {
     if (
@@ -25,7 +25,7 @@ export default function BookActions({ book }: { book: Book }) {
         `Are you sure you want to delete "${book.title}"? This action cannot be undone.`
       )
     ) {
-      dispatch(removeBook({ id: book.id }));
+      dispatch(removeBookFromServer(book.id));
     }
   };
 

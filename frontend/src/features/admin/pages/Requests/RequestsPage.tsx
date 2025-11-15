@@ -4,22 +4,26 @@ File: src/features/admin/pages/Requests/RequestsPage.tsx
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../../store/store";
-import { approveBook, rejectBook } from "../../../../store/Slices/booksSlice";
+import {
+  approveBookOnServer,
+  rejectBookOnServer,
+} from "../../../../store/Slices/booksSlice";
 import styles from "./RequestsPage.module.scss";
 
 export default function RequestsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const books = useSelector((s: RootState) => s.books);
+  const adminId = localStorage.getItem("adminId") || undefined;
 
   // Filter out only pending (unapproved) books
   const pendingBooks = books.filter((b) => !b.approved);
 
   const approve = (id: string) => {
-    dispatch(approveBook({ id }));
+    dispatch(approveBookOnServer({ id, adminId }));
   };
 
   const reject = (id: string) => {
-    dispatch(rejectBook({ id }));
+    dispatch(rejectBookOnServer({ id, adminId }));
   };
 
   return (

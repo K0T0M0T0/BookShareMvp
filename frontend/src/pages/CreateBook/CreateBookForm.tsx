@@ -3,7 +3,7 @@ File: src/components/books/CreateBookForm.tsx
 ========================= */
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addBook } from "../../store/Slices/booksSlice";
+import { saveBook } from "../../store/Slices/booksSlice";
 import type { AppDispatch, RootState } from "../../store/store";
 import styles from "./CreateBookForm.module.css";
 import { useNavigate } from "react-router-dom";
@@ -20,44 +20,53 @@ export default function CreateBookForm() {
   const [genres, setGenres] = useState("");
   const [tags, setTags] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Handlers
   //sumbit
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     // Basic validation
     if (!title.trim() || !author.trim()) {
-      alert("Title and Author are required.");
+      setError("Title and Author are required.");
       return;
     }
-    // call addBook action
-    dispatch(
-      addBook({
-        rating: null,
-        title,
-        author,
-        description,
-        status: "ongoing",
-        coverUrl: coverUrl || undefined,
-        genres: genres
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        tags: tags
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        uploaderId: session.userId,
-      })
-    );
-    // Reset form
-    setTitle("");
-    setAuthor("");
-    setDescription("");
-    setGenres("");
-    setTags("");
-    setCoverUrl("");
-    navigate("/");
+    setLoading(true);
+    try {
+      // call saveBook async thunk
+      await dispatch(
+        saveBook({
+          rating: null,
+          title,
+          author,
+          description,
+          status: "ongoing",
+          coverUrl: coverUrl || undefined,
+          genres: genres
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          tags: tags
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          uploaderId: session.userId,
+        })
+      ).unwrap();
+      // Reset form
+      setTitle("");
+      setAuthor("");
+      setDescription("");
+      setGenres("");
+      setTags("");
+      setCoverUrl("");
+      navigate("/");
+    } catch (err: any) {
+      setError(err.message || "Failed to create book");
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,6 +84,7 @@ export default function CreateBookForm() {
           <div className={`${styles.bookCover} ${styles.full}`} />
         )}
         <form className={styles.form} onSubmit={submit}>
+          {error && <p style={{ color: "red" }}>{error}</p>}
           <div className={styles.full}>
             <label className={styles.label}>Cover image URL</label>
             <input
@@ -132,8 +142,8 @@ export default function CreateBookForm() {
             />
           </div>
           <div className={`${styles.btnRow} ${styles.full}`}>
-            <button className={styles.button} type="submit">
-              Create
+            <button className={styles.button} type="submit" disabled={loading}>
+              {loading ? "Creating..." : "Create"}
             </button>
           </div>
         </form>
