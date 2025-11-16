@@ -1,6 +1,6 @@
 /* =========================
 File: src/store/Slices/logsSlice.ts
-Purpose: Keep track of all user/admin actions in the system.
+Keeps track of all logs locally (localStorage).
 ========================= */
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
@@ -8,12 +8,12 @@ import { nanoid } from "nanoid";
 
 export interface LogEntry {
   id: string;
-  type: "book" | "chapter" | "user" | string;
-  action: string; // e.g. "created book", "deleted user"
-  userId: string; // who did it
-  targetId?: string; // optional: which item was affected
+  type: string;
+  action: string;
+  userId: string;
+  targetId?: string;
   timestamp: string;
-  extra?: string; // e.g. book title, username, etc.
+  extra?: string;
 }
 
 const initial: LogEntry[] = JSON.parse(
@@ -35,9 +35,11 @@ const logsSlice = createSlice({
         timestamp: action.payload.timestamp || new Date().toISOString(),
         ...action.payload,
       };
-      state.unshift(log); // newest first
+
+      state.unshift(log);
       localStorage.setItem("mvp_logs", JSON.stringify(state));
     },
+
     clearLogs(state) {
       state.length = 0;
       localStorage.setItem("mvp_logs", "[]");

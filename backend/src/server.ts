@@ -5,6 +5,7 @@ import cors from "cors";
 import connectDB from "./config/db";
 import bookRoutes from "./routes/booksRoutes";
 import userRoutes from "./routes/usersRoutes";
+import logsRoutes from "./routes/logsRoutes";
 import readingListRoutes from "./routes/readingListsRoutes";
 
 dotenv.config();
@@ -22,6 +23,7 @@ connectDB();
 app.use("/api/books", bookRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reading-lists", readingListRoutes);
+app.use("/api/logs", logsRoutes);
 
 // Default
 app.get("/", (_req, res) => res.send("📚 BookShare Backend Running"));

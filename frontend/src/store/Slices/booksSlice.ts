@@ -130,9 +130,7 @@ export const rateBookOnServer = createAsyncThunk(
     if (!book) throw new Error("Book not found");
 
     const newRating =
-      book.rating === null
-        ? rating
-        : (book.rating + rating) / 2;
+      book.rating === null ? rating : (book.rating + rating) / 2;
 
     return await updateBook(id, { ...book, rating: newRating });
   }

@@ -121,6 +121,7 @@ export default function CreateBookForm() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description"
+              required
             />
           </div>
           <div>
