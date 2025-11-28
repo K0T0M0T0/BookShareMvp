@@ -2,17 +2,17 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import { updateUserThunk } from "../../store/Slices/usersSlice";
-import { logout } from "../../store/Slices/sessionSlice"; // ✅ import logout
-import { Check, X, LogOut } from "lucide-react"; // ✅ icon for logout
+import { logout } from "../../store/Slices/sessionSlice";
+import { Check, X, LogOut } from "lucide-react";
 import styles from "./ProfilePage.module.scss";
 import CollectionsOverview from "../collections/components/CollectionsOverview";
-import AddCollectionForm from "./components/AddCollectionForm";
 import ProfileImage from "../../components/ProfileImage";
 
 export default function ProfilePage() {
   const session = useSelector((s: RootState) => s.session);
   const users = useSelector((s: RootState) => s.users);
   const dispatch = useDispatch<AppDispatch>();
+
   const me = users.find((u) => u.id === session.userId);
 
   const [nick, setNick] = React.useState(me?.username || "");
@@ -41,8 +41,8 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     dispatch(logout());
-    localStorage.removeItem("token"); // optional cleanup
-    window.location.href = "/"; // redirect to homepage or login
+    // localStorage token removed — no longer needed
+    window.location.href = "/";
   };
 
   return (
@@ -80,13 +80,14 @@ export default function ProfilePage() {
             <>
               <div className={styles.nickname}>{me.username}</div>
               <div className={styles.email}>{me.email}</div>
+
               <button
                 className={styles.editToggleBtn}
                 onClick={() => setEditing(true)}
               >
                 Edit
               </button>
-              {/* ✅ Logout button */}
+
               <button
                 className={styles.logoutBtn}
                 onClick={handleLogout}
@@ -101,8 +102,8 @@ export default function ProfilePage() {
       </div>
 
       <div className={styles.collections}>
+        {/* ONLY built-in lists */}
         <CollectionsOverview userId={me.id} />
-        <AddCollectionForm userId={me.id} />
       </div>
     </section>
   );

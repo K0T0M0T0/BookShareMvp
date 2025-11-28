@@ -9,6 +9,9 @@ import type { AppDispatch } from "../../store/store";
 import styles from "./auth.module.css";
 import { useNavigate } from "react-router-dom";
 
+// ✅ use same login API as LoginPage
+import { loginUser as apiLoginUser } from "../../api/usersApi";
+
 export default function RegisterPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -50,18 +53,33 @@ export default function RegisterPage() {
     }
 
     try {
-      // 3️⃣ Register user
-      const result = await dispatch(
-        registerUserThunk({ username, email, password })
-      ).unwrap();
+      // 3️⃣ Register user in backend
+      await dispatch(registerUserThunk({ username, email, password })).unwrap();
 
-      // 4️⃣ Auto login newest user
-      if (result) {
-        dispatch(login({ userId: result.id }));
-        navigate("/");
-      }
+      // 4️⃣ Immediately login using same credentials
+      const loginData = await apiLoginUser(email, password);
+      const user = loginData.user;
+
+      // 5️⃣ Save full session (with token) → persists in localStorage
+      dispatch(
+        login({
+          userId: user.id ?? user._id, // ✅ handle Mongo _id
+          userName: user.username,
+          isAdmin: user.isAdmin,
+          userProfileUrl: user.avatar ?? null,
+          token: loginData.token, // ✅ JWT
+        })
+      );
+
+      navigate("/");
     } catch (err: any) {
-      setError(err.message || "Failed to register. Email may already be in use.");
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to register. Email may already be in use."
+      );
+    } finally {
       setLoading(false);
     }
   };

@@ -7,7 +7,7 @@ import { login as loginAction } from "../../store/Slices/sessionSlice";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../../store/store";
 import styles from "./auth.module.css";
-import { adminAuthService } from "../../features/admin/services/adminAuthService";
+
 import { loginUser as apiLoginUser } from "../../api/usersApi";
 
 export default function LoginPage() {
@@ -21,24 +21,27 @@ export default function LoginPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       const data = await apiLoginUser(email, password);
-
+      const user = data.user;
       // 🔥 Save into Redux session
       dispatch(
         loginAction({
-          userId: data.user.id,
-          userName: data.user.username,
-          isAdmin: data.user.isAdmin,
-          userProfileUrl: null,
-          token: data.token,
+          userId: user.id ?? user._id,
+          userName: user.username,
+          isAdmin: user.isAdmin,
+          userProfileUrl: user.avatar ?? null, // if you have avatar
+          token: data.token, // ✅ JWT from backend
         })
       );
 
       navigate("/");
     } catch (err: any) {
       setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 

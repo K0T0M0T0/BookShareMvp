@@ -1,120 +1,116 @@
 /* ==========================================================
 File: src/store/Slices/sessionSlice.ts
 Purpose: Manage login/logout session state for the current user.
-         This slice controls who is logged in, whether they're admin,
-         and stores small user-related info for UI display.
+         Persists to localStorage so refresh doesn't log you out.
 ========================================================== */
 
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+const STORAGE_KEY = "mvp_session";
+
 /* ==========================================================
 SECTION 1: Data model for session state
 ========================================================== */
-interface Session {
-  userId: string | null; // ✅ who is logged in (null = no one)
-  userName?: string | null; // optional display name
-  isAdmin: boolean; // ✅ true = admin user, false = normal
-  userProfileUrl?: string | null; // profile image (optional)
-  token?: string | null; // 🔒 future use: backend JWT token
+export interface SessionState {
+  userId: string | null;
+  userName: string | null;
+  isAdmin: boolean;
+  userProfileUrl: string | null;
+  token: string | null; // 🔒 JWT from backend
 }
 
 /* ==========================================================
 SECTION 2: Initialize session from localStorage (if exists)
 ========================================================== */
 
-// Try to load the last session from localStorage, or fallback to default empty state.
-const savedSession = localStorage.getItem("mvp_session");
+const savedSessionRaw =
+  typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
 
-const initial: Session = savedSession
-  ? JSON.parse(savedSession)
-  : {
-      userId: null,
-      userName: null,
-      isAdmin: false,
-      userProfileUrl: null,
-      token: null,
-    };
+const defaultSession: SessionState = {
+  userId: null,
+  userName: null,
+  isAdmin: false,
+  userProfileUrl: null,
+  token: null,
+};
+
+const initial: SessionState = savedSessionRaw
+  ? { ...defaultSession, ...JSON.parse(savedSessionRaw) }
+  : defaultSession;
 
 /* ==========================================================
-SECTION 3: Create Redux slice
+SECTION 3: Slice
 ========================================================== */
 
 const sessionSlice = createSlice({
   name: "session",
   initialState: initial,
   reducers: {
-    /* ========================================================
-       ACTION: Login user
-       Description:
-         Called when the user successfully logs in.
-         Stores their ID, name, admin flag, and optional token.
-         Also saves session persistently in localStorage.
-    ======================================================== */
+    /* ----------------------------------------------
+       login
+       Payload should come from your /api/users/login
+       response: { user, token }
+    ---------------------------------------------- */
     login(
       state,
       action: PayloadAction<{
         userId: string;
-        userName?: string;
+        userName?: string | null;
         isAdmin?: boolean;
         userProfileUrl?: string | null;
-        token?: string | null;
+        token: string; // ⬅ required: backend JWT
       }>
     ) {
-      // ✅ Update Redux state
       state.userId = action.payload.userId;
-      state.userName = action.payload.userName || null;
-      state.isAdmin = !!action.payload.isAdmin; // convert undefined → false
-      state.userProfileUrl = action.payload.userProfileUrl || null;
-      state.token = action.payload.token || null;
+      state.userName = action.payload.userName ?? null;
+      state.isAdmin = !!action.payload.isAdmin;
+      state.userProfileUrl = action.payload.userProfileUrl ?? null;
+      state.token = action.payload.token;
 
-      // ✅ Save new session persistently so refresh doesn't log you out
-      localStorage.setItem("mvp_session", JSON.stringify(state));
+      // ✅ persist to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     },
 
-    /* ========================================================
-       ACTION: Logout user
-       Description:
-         Clears all session information when user logs out.
-         Also removes session from localStorage.
-    ======================================================== */
+    /* ----------------------------------------------
+       logout
+    ---------------------------------------------- */
     logout(state) {
-      // Clear all session data in Redux
       state.userId = null;
       state.userName = null;
       state.isAdmin = false;
       state.userProfileUrl = null;
       state.token = null;
 
-      // Remove from localStorage so it doesn't auto-login next time
-      localStorage.removeItem("mvp_session");
-      localStorage.removeItem("isAdmin");
-      localStorage.removeItem("adminId");
+      localStorage.removeItem(STORAGE_KEY);
     },
 
-    /* ========================================================
-       ACTION: Update profile picture or name
-       (optional helper for UI profile editing)
-    ======================================================== */
+    /* ----------------------------------------------
+       updateProfile (optional)
+    ---------------------------------------------- */
     updateProfile(
       state,
       action: PayloadAction<{
-        userName?: string;
+        userName?: string | null;
         userProfileUrl?: string | null;
       }>
     ) {
-      if (action.payload.userName) state.userName = action.payload.userName;
-      if (action.payload.userProfileUrl)
+      if (typeof action.payload.userName !== "undefined") {
+        state.userName = action.payload.userName;
+      }
+      if (typeof action.payload.userProfileUrl !== "undefined") {
         state.userProfileUrl = action.payload.userProfileUrl;
+      }
 
-      // persist updates
-      localStorage.setItem("mvp_session", JSON.stringify(state));
+      // re-save updated session
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     },
   },
 });
 
 /* ==========================================================
-SECTION 4: Export actions and reducer
+SECTION 4: Exports
 ========================================================== */
+
 export const { login, logout, updateProfile } = sessionSlice.actions;
 export default sessionSlice.reducer;

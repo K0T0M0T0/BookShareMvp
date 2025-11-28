@@ -7,6 +7,7 @@ import bookRoutes from "./routes/booksRoutes";
 import userRoutes from "./routes/usersRoutes";
 import logsRoutes from "./routes/logsRoutes";
 import readingListRoutes from "./routes/readingListsRoutes";
+import collectionsRoutes from "./routes/collectionsRoutes";
 
 dotenv.config();
 const app = express();
@@ -24,7 +25,7 @@ app.use("/api/books", bookRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reading-lists", readingListRoutes);
 app.use("/api/logs", logsRoutes);
-
+app.use("/api/collections", collectionsRoutes);
 // Default
 app.get("/", (_req, res) => res.send("📚 BookShare Backend Running"));
 

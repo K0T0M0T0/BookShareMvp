@@ -10,7 +10,6 @@ import AdminZoneNav from "./features/admin/components/AdminNavbar";
 import UsersPage from "./features/admin/pages/Users/UsersPages";
 import LogsPage from "./features/admin/pages/Logs/LogsPage";
 import RequestsPage from "./features/admin/pages/Requests/RequestsPage";
-import { adminAuthService } from "./features/admin/services/adminAuthService";
 import CreateBookForm from "./pages/CreateBook/CreateBookForm";
 import BookPage from "./pages/BookPage/BookPage";
 import ChapterPage from "./pages/BookPage/ChapterPage/ChapterPage";

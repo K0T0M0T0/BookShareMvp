@@ -1,6 +1,8 @@
 import express from "express";
+import { protect, adminOnly } from "../middleware/authMiddleware";
 import {
   getBooks,
+  getBookById,
   createBook,
   updateBook,
   deleteBook,
@@ -8,9 +10,15 @@ import {
 
 const router = express.Router();
 
+// Public: list + single
 router.get("/", getBooks);
-router.post("/", createBook);
-router.put("/:id", updateBook);
-router.delete("/:id", deleteBook);
+router.get("/:id", getBookById);
+
+// Logged in user can create
+router.post("/", protect, createBook);
+
+// Only admin can update / delete
+router.put("/:id", protect, adminOnly, updateBook);
+router.delete("/:id", protect, adminOnly, deleteBook);
 
 export default router;

@@ -5,33 +5,24 @@ import styles from "./collections.module.scss";
 import CollectionView from "./components/CollectionView";
 import CollectionsOverview from "./components/CollectionsOverview";
 
-// Collections page: show either a specific collection/list (by route param)
-// or a listing of all collections when no param provided.
-export default function CollectionsPage() {
+const CollectionsPage = () => {
   const { id } = useParams(); // id can be a list name or 'built:later' style
   const books = useSelector((s: RootState) => s.books);
   const readingLists = useSelector((s: RootState) => s.readingLists);
 
   if (id) {
     // show contents of a single list/collection
-    let entries = [] as string[];
+    let entries: string[] = [];
     const decodedId = decodeURIComponent(id);
+
     if (decodedId.startsWith("built:")) {
       const listName = decodedId.replace("built:", "");
       entries = readingLists
         .filter((r) => r.list === listName)
         .map((r) => r.bookId);
     } else {
-      // custom collection (stored in localStorage per user)
-      const currentUser = JSON.parse(
-        localStorage.getItem("mvp_session") || '{"userId":null}'
-      ).userId;
-      if (currentUser) {
-        const key = `lists_${currentUser}`;
-        const lists = JSON.parse(localStorage.getItem(key) || "[]") as any[];
-        const found = lists.find((l) => l.name.toLowerCase() === decodedId.toLowerCase());
-        entries = found ? found.ids : [];
-      }
+      // ❌ custom collections now via backend – so nothing to load here yet
+      entries = [];
     }
 
     const items = books.filter((b) => entries.includes(b.id));
@@ -44,9 +35,7 @@ export default function CollectionsPage() {
     );
   }
 
-  const currentUser = JSON.parse(
-    localStorage.getItem("mvp_session") || '{"userId":null}'
-  ).userId;
+  const currentUser = useSelector((s: RootState) => s.session.userId);
 
   return (
     <section className={styles.container}>
@@ -54,4 +43,6 @@ export default function CollectionsPage() {
       <CollectionsOverview userId={currentUser} />
     </section>
   );
-}
+};
+
+export default CollectionsPage; // ✅ THIS is the important line

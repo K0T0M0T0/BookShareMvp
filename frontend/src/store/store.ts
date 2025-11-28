@@ -7,6 +7,7 @@ import sessionReducer from "./Slices/sessionSlice";
 import booksReducer from "./Slices/booksSlice";
 import readingListsReducer from "./Slices/readingListsSlice";
 import logsReducer from "./Slices/logsSlice";
+import collectionsReducer from "./Slices/collectionsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     books: booksReducer,
     readingLists: readingListsReducer,
     logs: logsReducer,
+    collections: collectionsReducer, // ✅ add
   },
 });
 // ✅ Allow slices to dispatch logs safely

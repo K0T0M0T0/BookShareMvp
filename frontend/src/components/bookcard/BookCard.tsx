@@ -20,6 +20,7 @@ import ExtensionCard from "./components/ExtemsionCard";
 export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
   const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((s: RootState) => s.session.userId);
+
   const listEntry = useSelector((s: RootState) =>
     userId
       ? s.readingLists.find((e) => e.userId === userId && e.bookId === book.id)
@@ -28,6 +29,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
 
   const inList = Boolean(listEntry);
   const listName = listEntry?.list;
+
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -59,7 +61,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
     if (hovered && !menuOpen && !inList) {
       hoverTimerRef.current = setTimeout(() => {
         setShowExtension(true);
-      }, 1000); // ⏱️ 1 seconds before showing
+      }, 1000);
     } else {
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
       setShowExtension(false);
@@ -76,9 +78,9 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
       setMenuOpen(true);
     } else {
-      // small delay to prevent flicker
       closeTimeoutRef.current = setTimeout(() => setMenuOpen(false), 300);
     }
+
     return () => {
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     };
@@ -90,96 +92,48 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
     "completed",
     "dropped",
   ];
-  const customLists: string[] = userId
-    ? (
-        JSON.parse(localStorage.getItem(`lists_${userId}`) || "[]") as any[]
-      ).map((l) => l.name)
-    : [];
 
+  const customLists: string[] = []; // backend does not support custom lists yet
+
+  // === SELECT LIST (backend only!) ===
   const handleSelectList = (list: string) => {
     if (!userId) {
       alert("Please login to manage reading lists");
       setMenuOpen(false);
       return;
     }
+
     if (inList && list === listName) {
       setMenuOpen(false);
       return;
     }
 
-    try {
-      const key = `lists_${userId}`;
-      const collections: { name: string; ids: string[] }[] = JSON.parse(
-        localStorage.getItem(key) || "[]"
-      );
-      let mutated = false;
-      for (const col of collections) {
-        const before = col.ids.length;
-        col.ids = col.ids.filter((id) => id !== book.id);
-        if (col.ids.length !== before) mutated = true;
-      }
-      const builtInSets: Record<string, true> = {
-        later: true,
-        reading: true,
-        completed: true,
-        dropped: true,
-      };
-      if (!builtInSets[list as keyof typeof builtInSets]) {
-        const target = collections.find(
-          (c) => c.name.toLowerCase() === String(list).toLowerCase()
-        );
-        if (target && !target.ids.includes(book.id)) {
-          target.ids.push(book.id);
-          mutated = true;
-        }
-      }
-      if (mutated) {
-        localStorage.setItem(key, JSON.stringify(collections));
-        window.dispatchEvent(
-          new CustomEvent("collections:changed", { detail: { userId } })
-        );
-      }
-    } catch {}
     dispatch(addToListThunk({ userId, bookId: book.id, list }));
     setMenuOpen(false);
   };
 
+  // === REMOVE FROM LIST ===
   const handleRemove = () => {
     if (!userId) return;
-    try {
-      const key = `lists_${userId}`;
-      const collections: { name: string; ids: string[] }[] = JSON.parse(
-        localStorage.getItem(key) || "[]"
-      );
-      let mutated = false;
-      for (const col of collections) {
-        const before = col.ids.length;
-        col.ids = col.ids.filter((id) => id !== book.id);
-        if (col.ids.length !== before) mutated = true;
-      }
-      if (mutated) {
-        localStorage.setItem(key, JSON.stringify(collections));
-        window.dispatchEvent(
-          new CustomEvent("collections:changed", { detail: { userId } })
-        );
-      }
-    } catch {}
+
     dispatch(removeFromListThunk({ userId, bookId: book.id }));
     setMenuOpen(false);
   };
 
   const handleOpen = () => {
-    if (menuOpen) return; // ⛔ prevent card click if menu open
+    if (menuOpen) return;
     navigate(`/books/${book.id}`);
   };
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
+
     if (
       bookmarkRef.current?.contains(target) ||
       menuRef.current?.contains(target)
     )
       return;
+
     setHovered(true);
   };
 
@@ -219,7 +173,7 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
                 e.stopPropagation();
                 if (!userId)
                   return alert("Please login to manage reading lists");
-                setMenuOpen((s) => !s); // click toggles manually
+                setMenuOpen((s) => !s);
               }}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
@@ -270,7 +224,6 @@ export const BookCard: React.FC<{ book: Book }> = ({ book }) => {
         </div>
       </div>
 
-      {/* ✅ Extension appears only after 3s hover, if no bookmark/menu active */}
       {showExtension && <ExtensionCard book={book} />}
     </>
   );

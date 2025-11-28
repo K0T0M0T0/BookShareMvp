@@ -1,24 +1,35 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../../store/store";
+import { createCollectionThunk } from "../../../store/Slices/collectionsSlice";
 
 export default function AddCollectionForm({ userId }: { userId: string }) {
   const [name, setName] = React.useState("");
-  const key = `lists_${userId}`;
+  const dispatch = useDispatch<AppDispatch>();
 
-  const add = () => {
+  const collections = useSelector((s: RootState) =>
+    s.collections.filter((c) => c.userId === userId)
+  );
+
+  const add = async () => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    const existing: { name: string; ids: string[] }[] = JSON.parse(
-      localStorage.getItem(key) || "[]"
-    );
-    if (existing.some((e) => e.name.toLowerCase() === trimmed.toLowerCase())) {
+
+    // Prevent duplicate names
+    if (
+      collections.some((c) => c.name.toLowerCase() === trimmed.toLowerCase())
+    ) {
       alert("Collection with this name already exists");
       return;
     }
-    const next = [...existing, { name: trimmed, ids: [] }];
-    localStorage.setItem(key, JSON.stringify(next));
-    setName("");
-    // notify listeners to refresh
-    window.dispatchEvent(new CustomEvent("collections:changed", { detail: { userId } }));
+
+    try {
+      await dispatch(createCollectionThunk({ userId, name: trimmed })).unwrap();
+
+      setName("");
+    } catch (err) {
+      alert("Failed to create collection");
+    }
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -35,11 +46,13 @@ export default function AddCollectionForm({ userId }: { userId: string }) {
           placeholder="New collection name"
           aria-label="Collection name"
         />
-        <button type="submit" disabled={!name.trim()}>Create</button>
+        <button type="submit" disabled={!name.trim()}>
+          Create
+        </button>
       </div>
-      <p className="hint">Tip: Use short, descriptive names like "Mystery TBR"</p>
+      <p className="hint">
+        Tip: Use short, descriptive names like "Mystery TBR"
+      </p>
     </form>
   );
 }
-
-

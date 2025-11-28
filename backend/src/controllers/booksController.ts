@@ -1,16 +1,16 @@
-//backend/src/controllers/booksController.ts
 import { Request, Response } from "express";
-import Book from "../models/book";
+import Book from "../models/book"; // ✅ your Mongoose model
 
-/* ==========================================================
-   Get all books
-   (optionally only approved if ?approved=true)
-========================================================== */
-export const getBooks = async (req: Request, res: Response) => {
+// Helper: map Mongo document → frontend shape (id instead of _id)
+const mapBook = (b: any) => ({
+  ...b,
+  id: b._id.toString(),
+});
+
+export const getBooks = async (_req: Request, res: Response) => {
   try {
-    const filter = req.query.approved === "true" ? { approved: true } : {};
-    const books = await Book.find(filter);
-    res.status(200).json(books);
+    const books = await Book.find().lean();
+    res.json(books.map(mapBook));
   } catch (err: any) {
     res
       .status(500)
@@ -18,13 +18,25 @@ export const getBooks = async (req: Request, res: Response) => {
   }
 };
 
-/* ==========================================================
-   Create a new book
-========================================================== */
+export const getBookById = async (req: Request, res: Response) => {
+  try {
+    const book = await Book.findById(req.params.id).lean();
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+    res.json(mapBook(book));
+  } catch (err: any) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch book", error: err.message });
+  }
+};
+
 export const createBook = async (req: Request, res: Response) => {
   try {
-    const book = await Book.create(req.body);
-    res.status(201).json(book);
+    const created = await Book.create(req.body);
+    const obj = created.toObject();
+    res.status(201).json(mapBook(obj));
   } catch (err: any) {
     res
       .status(500)
@@ -32,16 +44,18 @@ export const createBook = async (req: Request, res: Response) => {
   }
 };
 
-/* ==========================================================
-   Update existing book
-========================================================== */
 export const updateBook = async (req: Request, res: Response) => {
   try {
+    // ✅ IMPORTANT: use Mongo _id via findByIdAndUpdate
     const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-    });
-    if (!updated) return res.status(404).json({ message: "Book not found" });
-    res.json(updated);
+    }).lean();
+
+    if (!updated) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.json(mapBook(updated));
   } catch (err: any) {
     res
       .status(500)
@@ -49,14 +63,15 @@ export const updateBook = async (req: Request, res: Response) => {
   }
 };
 
-/* ==========================================================
-   Delete a book
-========================================================== */
 export const deleteBook = async (req: Request, res: Response) => {
   try {
-    const deleted = await Book.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Book not found" });
-    res.json({ id: req.params.id });
+    const deleted = await Book.findByIdAndDelete(req.params.id).lean();
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.json({ id: deleted._id.toString(), message: "Book removed" });
   } catch (err: any) {
     res
       .status(500)

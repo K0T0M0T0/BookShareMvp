@@ -4,10 +4,7 @@ Purpose: Manage user accounts (admin only)
 ========================================================== */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
-import { addLog } from "./logsSlice";
-
 import {
   fetchAllUsers,
   registerUser as registerUserApi,
@@ -25,6 +22,7 @@ export interface User {
   avatar?: string;
   isAdmin?: boolean;
   banned?: boolean;
+  // password?: string; // exists in DB but usually not needed in frontend
 }
 
 /* ==========================================================
@@ -70,25 +68,27 @@ export const deleteUserThunk = createAsyncThunk<
   { state: RootState }
 >("users/delete", async (id, { getState }) => {
   const token = getState().session.token;
-  return await deleteUserApi(id, token!);
+  await deleteUserApi(id, token!);
+  return { id };
 });
 
-// Ban / Unban user
+// Ban / Unban user (admin only)
 export const toggleBanThunk = createAsyncThunk<
   User,
-  string,
+  { id: string },
   { state: RootState }
->("users/toggleBan", async (id, { getState }) => {
+>("users/toggleBan", async ({ id }, { getState }) => {
   const token = getState().session.token;
-  const allUsers = await fetchAllUsers(token!);
 
+  // We re-fetch users just to get the current state of this user
+  const allUsers = await fetchAllUsers(token!);
   const user = allUsers.find((u: User) => u.id === id);
   if (!user) throw new Error("User not found");
 
   return await updateUserApi(id, { banned: !user.banned }, token!);
 });
 
-// Promote / demote admin
+// Promote / demote admin (admin only)
 export const setAdminThunk = createAsyncThunk<
   User,
   { id: string; value: boolean },
@@ -108,9 +108,14 @@ const usersSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Load all users
-      .addCase(loadUsers.fulfilled, (_, action) => {
+      .addCase(loadUsers.fulfilled, (_state, action) => {
         return action.payload;
       })
+
+      // Register user (optional: push to list if you want)
+      // .addCase(registerUserThunk.fulfilled, (state, action) => {
+      //   state.push(action.payload);
+      // })
 
       // Update user
       .addCase(updateUserThunk.fulfilled, (state, action) => {

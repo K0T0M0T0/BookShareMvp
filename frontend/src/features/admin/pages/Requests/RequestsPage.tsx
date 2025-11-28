@@ -13,7 +13,7 @@ import styles from "./RequestsPage.module.scss";
 export default function RequestsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const books = useSelector((s: RootState) => s.books);
-  const adminId = localStorage.getItem("adminId") || undefined;
+  const adminId = useSelector((s: RootState) => s.session.userId) ?? undefined;
 
   // Filter out only pending (unapproved) books
   const pendingBooks = books.filter((b) => !b.approved);
