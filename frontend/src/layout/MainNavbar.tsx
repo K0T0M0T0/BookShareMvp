@@ -5,7 +5,7 @@ import React from "react";
 import { CircleUserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MainNavbar.module.scss";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 
 

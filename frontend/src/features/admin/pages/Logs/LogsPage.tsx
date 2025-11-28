@@ -1,7 +1,6 @@
 /* =========================
 File: src/features/admin/pages/Logs/LogsPage.tsx
 ========================= */
-import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../../store/store";
 import { clearLogs } from "../../../../store/Slices/logsSlice";

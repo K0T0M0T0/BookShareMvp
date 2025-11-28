@@ -1,7 +1,6 @@
 /* =========================
 File: src/features/admin/pages/Users/UsersPage.tsx
 ========================= */
-import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../../store/store";
 import { toggleBanThunk, setAdminThunk } from "../../../../store/Slices/usersSlice";

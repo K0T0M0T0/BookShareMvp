@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { Clock, BookOpen, CheckCircle2, Ban } from "lucide-react";
 import styles from "../../profile/ProfilePage.module.scss";
 import type { JSX } from "react";
-import React from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 

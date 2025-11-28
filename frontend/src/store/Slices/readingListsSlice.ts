@@ -6,7 +6,6 @@ has saved to different lists — such as "reading", "completed",
 ========================================================== */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchUserReadingLists,
   addBookToList,
