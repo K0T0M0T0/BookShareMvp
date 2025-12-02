@@ -4,7 +4,7 @@ import {
   createCollection,
   addBookToCollection,
   removeBookFromCollection,
-} from "../../api/collectionApi";
+} from "../../api/collectionsApi";
 
 export interface Collection {
   id: string;

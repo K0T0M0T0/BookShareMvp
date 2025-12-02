@@ -15,7 +15,7 @@ import {
 } from "../../api/booksApi";
 
 import { addLogToServer } from "./logsSlice";
-import type { RootState, AppDispatch } from "../store";
+import type { RootState, AppDispatch } from "../index";
 
 /* ==========================================================
 SECTION 1: Data structure definitions

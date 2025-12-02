@@ -3,10 +3,10 @@ File: src/api/booksApi.ts
 Purpose: Talk with backend /api/books endpoints with JWT auth.
 ========================================================== */
 
-import axios from "axios";
+import apiClient from "./axiosInstance";
 import type { Book } from "../store/Slices/booksSlice"; // type-only import
 
-const API_URL = "http://localhost:5000/api/books";
+const BOOKS_PATH = "/books";
 
 const authHeader = (token: string | null) =>
   token
@@ -34,11 +34,10 @@ SECTION 1: API functions
 
 // GET /api/books
 export const fetchAllBooks = async (token: string | null): Promise<Book[]> => {
-  const res = await axios.get(API_URL, {
+  const res = await apiClient.get<Book[]>(BOOKS_PATH, {
     headers: authHeader(token),
   });
-  const raw = res.data as any[];
-  return raw.map(mapBook);
+  return res.data.map(mapBook);
 };
 
 // POST /api/books
@@ -46,7 +45,7 @@ export const createBook = async (
   book: Omit<Book, "id" | "chapterAmount" | "chapters">,
   token: string | null
 ): Promise<Book> => {
-  const res = await axios.post(API_URL, book, {
+  const res = await apiClient.post(BOOKS_PATH, book, {
     headers: authHeader(token),
   });
   return mapBook(res.data);
@@ -58,7 +57,7 @@ export const updateBook = async (
   data: Partial<Book>,
   token: string | null
 ): Promise<Book> => {
-  const res = await axios.put(`${API_URL}/${id}`, data, {
+  const res = await apiClient.put(`${BOOKS_PATH}/${id}`, data, {
     headers: authHeader(token),
   });
   return mapBook(res.data);
@@ -69,7 +68,7 @@ export const deleteBook = async (
   id: string,
   token: string | null
 ): Promise<string> => {
-  await axios.delete(`${API_URL}/${id}`, {
+  await apiClient.delete(`${BOOKS_PATH}/${id}`, {
     headers: authHeader(token),
   });
   return id;

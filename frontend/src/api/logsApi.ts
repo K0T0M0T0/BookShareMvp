@@ -8,7 +8,7 @@ Backend routes:
   DELETE /api/logs        (admin only)
 ========================================================== */
 
-import axios from "axios";
+import apiClient from "./axiosInstance";
 
 /* ==========================================================
 SECTION 1: Types
@@ -38,7 +38,7 @@ export interface CreateLogDto {
 SECTION 2: Base URL & Helper
 ========================================================== */
 
-const API_URL = "http://localhost:5000/api/logs";
+const LOGS_PATH = "/logs";
 
 // Small helper to build auth header from token
 const authHeader = (token?: string | null) =>
@@ -59,7 +59,7 @@ SECTION 3: API Functions
 export const fetchAllLogs = async (
   token: string | null
 ): Promise<LogEntryDto[]> => {
-  const res = await axios.get<LogEntryDto[]>(API_URL, {
+  const res = await apiClient.get<LogEntryDto[]>(LOGS_PATH, {
     headers: authHeader(token),
   });
   return res.data;
@@ -73,7 +73,7 @@ export const createLog = async (
   log: CreateLogDto,
   token: string | null
 ): Promise<LogEntryDto> => {
-  const res = await axios.post<LogEntryDto>(API_URL, log, {
+  const res = await apiClient.post<LogEntryDto>(LOGS_PATH, log, {
     headers: authHeader(token),
   });
   return res.data;
@@ -83,7 +83,7 @@ export const createLog = async (
  * Clear ALL logs (admin only).
  */
 export const clearAllLogs = async (token: string | null): Promise<void> => {
-  await axios.delete(API_URL, {
+  await apiClient.delete(LOGS_PATH, {
     headers: authHeader(token),
   });
 };

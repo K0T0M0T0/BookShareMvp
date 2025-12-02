@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:5000/api/reading-lists";
+import apiClient from "./axiosInstance";
+
+const READING_LISTS_PATH = "/reading-lists";
 
 /* Helper function to convert MongoDB _id to id */
 function convertMongoId(obj: any): any {
@@ -22,10 +24,8 @@ function convertMongoId(obj: any): any {
 
 /* Fetch reading lists for a user */
 export async function fetchUserReadingLists(userId: string) {
-  const res = await fetch(`${API_URL}/${userId}`);
-  if (!res.ok) throw new Error("Failed to fetch reading lists");
-  const data = await res.json();
-  return convertMongoId(data);
+  const res = await apiClient.get(`${READING_LISTS_PATH}/${userId}`);
+  return convertMongoId(res.data);
 }
 
 /* Add or move a book to a list */
@@ -34,22 +34,13 @@ export async function addBookToList(data: {
   bookId: string;
   list: string;
 }) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Failed to add to list");
-  const data_res = await res.json();
-  return convertMongoId(data_res);
+  const res = await apiClient.post(READING_LISTS_PATH, data);
+  return convertMongoId(res.data);
 }
 
 /* Remove a book from list */
 export async function removeBookFromList(userId: string, bookId: string) {
-  const res = await fetch(`${API_URL}/${userId}/${bookId}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to remove from list");
-  return res.json();
+  const res = await apiClient.delete(`${READING_LISTS_PATH}/${userId}/${bookId}`);
+  return res.data;
 }
 

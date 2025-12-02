@@ -1,10 +1,8 @@
-import React, { use } from "react";
+import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { useState } from "react";
 import styles from "./AdminNavbar.module.scss";
 
 export default function AdminZoneNav() {
-
   return (
     <div>
       <nav className={styles.navbar}>

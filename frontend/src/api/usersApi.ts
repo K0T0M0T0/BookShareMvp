@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:5000/api/users";
+import apiClient from "./axiosInstance";
+
+const USERS_PATH = "/users";
 
 /* Helper: normalize MongoDB _id → id */
 function convertMongoId(obj: any): any {
@@ -18,62 +20,24 @@ function convertMongoId(obj: any): any {
 
 /* Fetch all users (ADMIN ONLY) */
 export async function fetchAllUsers(token: string) {
-  const res = await fetch(API_URL, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const res = await apiClient.get(USERS_PATH, {
+    headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to fetch users");
-  return convertMongoId(await res.json());
-}
-
-/* Register new user */
-export async function registerUser(user: any) {
-  const res = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(user),
-  });
-  if (!res.ok) throw new Error("Failed to register user");
-  return convertMongoId(await res.json());
+  return convertMongoId(res.data);
 }
 
 /* Update user (admin only or self-edit) */
 export async function updateUser(id: string, data: any, token: string) {
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
+  const res = await apiClient.put(`${USERS_PATH}/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to update user");
-  return convertMongoId(await res.json());
+  return convertMongoId(res.data);
 }
 
 /* Delete user (admin only) */
 export async function deleteUser(id: string, token: string) {
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE",
+  const res = await apiClient.delete(`${USERS_PATH}/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete user");
-  return await res.json();
-}
-
-/* Login user — uses REAL backend login now */
-export async function loginUser(email: string, password: string) {
-  const res = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || "Invalid credentials");
-  }
-
-  return convertMongoId(await res.json());
+  return res.data;
 }

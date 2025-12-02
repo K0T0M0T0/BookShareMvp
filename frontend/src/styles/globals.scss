@@ -135,3 +135,118 @@ button:hover {
 button:focus {
   box-shadow: 0 0 10px 4px var(--shadow);
 }
+
+/* =========================
+   Reusable UI helpers
+========================= */
+.ui-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  background: var(--accent);
+  color: #fff;
+}
+
+.ui-btn--secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.ui-btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border: none;
+}
+
+.ui-btn:active {
+  transform: scale(0.98);
+}
+
+.ui-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.ui-modal__content {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+}
+
+.ui-modal__body {
+  margin-bottom: 1rem;
+}
+
+.ui-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ui-spinner__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.not-found {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.not-found a {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.app-footer {
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.addCollection {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.addCollectionRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addCollection .hint {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

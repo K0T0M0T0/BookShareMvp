@@ -5,7 +5,7 @@ export interface ILog extends Document {
   action: string;
   userId: string;
   targetId?: string;
-  timestamp: string;
+  timestamp?: string;
   extra?: string;
 }
 
@@ -15,7 +15,11 @@ const LogSchema = new Schema<ILog>(
     action: { type: String, required: true },
     userId: { type: String, required: true },
     targetId: { type: String },
-    timestamp: { type: String, required: true },
+    // ⬇️ NOT required, created automatically
+    timestamp: {
+      type: String,
+      default: () => new Date().toISOString(),
+    },
     extra: { type: String },
   },
   { timestamps: false }

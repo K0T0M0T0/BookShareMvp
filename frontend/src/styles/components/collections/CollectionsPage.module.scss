@@ -1,0 +1,45 @@
+@use "../../mixins.scss" as *;
+
+.container {
+  padding: 2rem 1rem;
+}
+
+.defaultLists,
+.collections {
+  margin-top: 2rem;
+}
+
+.collectionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.collectionCard {
+  background: var(--card-bg);
+  padding: 1.25rem;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  @include card-shadow;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.collectionCard h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.collectionCard p {
+  color: var(--muted);
+}

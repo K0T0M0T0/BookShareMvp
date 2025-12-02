@@ -9,7 +9,7 @@ Backend routes:
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { RootState } from "../store";
+import type { RootState } from "../index";
 
 /* ==========================================================
 SECTION 1: Log entry structure
@@ -59,15 +59,24 @@ export const loadLogs = createAsyncThunk<
 export const addLogToServer = createAsyncThunk<
   LogEntry,
   Omit<LogEntry, "_id" | "timestamp">,
-  { state: RootState }
->("logs/add", async (logData, { getState }) => {
-  const token = getState().session.token;
+  { state: RootState; rejectValue: string }
+>("logs/add", async (logData, { getState, rejectWithValue }) => {
+  try {
+    const token = getState().session.token;
 
-  const res = await axios.post(API_URL, logData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+    const res = await axios.post(API_URL, logData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  return res.data;
+    return res.data;
+  } catch (err: any) {
+    console.error(
+      "Failed to save log:",
+      err?.response?.data || err?.message || err
+    );
+    // ⬇️ important: we do NOT throw, we just reject the thunk
+    return rejectWithValue("Failed to save log");
+  }
 });
 
 // Delete ALL logs (admin only)

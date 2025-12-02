@@ -4,13 +4,13 @@ Purpose: Manage user accounts (admin only)
 ========================================================== */
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { RootState } from "../store";
+import type { RootState } from "../index";
 import {
   fetchAllUsers,
-  registerUser as registerUserApi,
   updateUser as updateUserApi,
   deleteUser as deleteUserApi,
 } from "../../api/usersApi";
+import { registerUser as registerUserApi } from "../../api/authApi";
 
 /* ==========================================================
 SECTION 1: User model
