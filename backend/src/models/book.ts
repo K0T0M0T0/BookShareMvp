@@ -53,7 +53,7 @@ const BookSchema = new Schema<IBook>(
     rating: { type: Number, default: null },
     coverUrl: { type: String },
     approved: { type: Boolean, default: false },
-    ratingsCount: { type: Number, default: false },
+    ratingsCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

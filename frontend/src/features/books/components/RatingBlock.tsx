@@ -1,71 +1,73 @@
 /* =========================
-File: src/components/bookcard/components/RatingStars.tsx
+File: BookShareMvp/frontend/src/features/books/components/RatingBlock.tsx
 ========================= */
 
-import React from "react";
-import { Star } from "lucide-react";
+import React, { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { rateBookOnServer } from "../../../store/Slices/booksSlice";
+import RatingStars from "./RatingStars";
 import styles from "../../../styles/components/books/cards/RatingBlock.module.scss";
 
-type RatingStarsProps = {
-  value: number; // average rating, may include halves like 3.5
-  onChange?: (value: number) => void;
-  selected?: number;
-  showLabel?: boolean;
+type RatingBlockProps = {
+  bookId: string;
+  value: number; // average rating from backend
+  ratingsCount?: number; // how many ratings total
 };
 
-export default function RatingStars({
+const RatingBlock: React.FC<RatingBlockProps> = ({
+  bookId,
   value,
-  onChange,
-  selected,
-  showLabel = false,
-}: RatingStarsProps) {
-  const [hover, setHover] = React.useState<number | null>(null);
+  ratingsCount = 0,
+}) => {
+  const dispatch = useAppDispatch();
+  const session = useAppSelector((s) => s.session);
 
-  const renderStar = (index: number) => {
-    const fullValue = hover ?? selected ?? value;
-    const isFull = fullValue >= index;
-    const isHalf = fullValue >= index - 0.5 && fullValue < index;
+  const [localRating, setLocalRating] = useState<number>(value);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    return (
-      <div
-        key={index}
-        className={styles.starWrapper}
-        onClick={() => onChange?.(index)}
-        onMouseEnter={() => setHover(index)}
-        onMouseLeave={() => setHover(null)}
-      >
-        {/* Empty star */}
-        <Star className={styles.emptyStar} strokeWidth={1.5} />
+  const handleChange = async (newValue: number) => {
+    // front-end guard – only logged in users can rate
+    if (!session.token) {
+      setError("You must be logged in to rate this book.");
+      return;
+    }
 
-        {/* Full or half fill */}
-        <Star
-          className={`${styles.filledStar} ${
-            isFull ? styles.full : isHalf ? styles.half : ""
-          }`}
-          strokeWidth={1.5}
-        />
-      </div>
-    );
+    setError(null);
+    setLocalRating(newValue);
+
+    try {
+      setSaving(true);
+      await dispatch(
+        rateBookOnServer({ id: bookId, rating: newValue })
+      ).unwrap();
+    } catch (err) {
+      console.error("Failed to save rating", err);
+      setError("Failed to save rating.");
+      setLocalRating(value); // revert
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className={styles.ratingStars}>
-      <svg width="0" height="0">
-        <defs>
-          <linearGradient id="halfStar">
-            <stop offset="50%" stopColor="#f5a623" />
-            <stop offset="50%" stopColor="transparent" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      </svg>
+    <div className={styles.ratingBlock}>
+      <RatingStars
+        value={value} // backend average
+        selected={localRating} // local click/hover feedback
+        onChange={handleChange}
+        showLabel
+      />
 
-      {Array.from({ length: 5 }, (_, i) => renderStar(i + 1))}
-
-      {showLabel && (
-        <span className={styles.label}>
-          {(Math.round(value * 2) / 2).toFixed(1)} / 5
+      <div className={styles.meta}>
+        <span className={styles.count}>
+          {ratingsCount} {ratingsCount === 1 ? "rating" : "ratings"}
         </span>
-      )}
+        {saving && <span className={styles.saving}>Saving...</span>}
+        {error && <span className={styles.error}>{error}</span>}
+      </div>
     </div>
   );
-}
+};
+
+export default RatingBlock;

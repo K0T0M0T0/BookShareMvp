@@ -1,15 +1,12 @@
 /* =========================
-File: src/pages/books/components/BookHeader.tsx
+File: BookShareMvp/frontend/src/features/books/components/BookHeader.tsx
 ========================= */
 
 import React from "react";
-import styles from "../../../../styles/components/books/BookDetailsPage.module.scss";
-import RatingBlock from "../RatingBlock";
-import type { Book } from "../../../../store/Slices/booksSlice";
+import styles from "../../../styles/components/books/BookDetailsPage.module.scss";
+import RatingBlock from "./RatingBlock";
+import type { Book } from "../../../store/Slices/booksSlice";
 
-/**
- * Renders the book cover, title, author, genres, and rating section.
- */
 export default function BookHeader({ book }: { book: Book }) {
   return (
     <div className={styles.header}>
@@ -27,7 +24,11 @@ export default function BookHeader({ book }: { book: Book }) {
         <p className={styles.description}>{book.description}</p>
 
         <div className={styles.actions}>
-          <RatingBlock value={book.rating || 0} />
+          <RatingBlock
+            bookId={book.id}
+            value={book.rating || 0}
+            ratingsCount={book.ratingsCount ?? 0}
+          />
         </div>
       </div>
     </div>

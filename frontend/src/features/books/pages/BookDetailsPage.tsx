@@ -1,5 +1,5 @@
 /* =========================
-File: src/pages/books/BookPage.tsx
+File: bookShareMvp\frontend\src\features\books\pages\BookDetailsPage.tsx
 ========================= */
 
 import React from "react";
@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { useAppSelector } from "../../../app/hooks";
 import styles from "../../../styles/components/books/BookDetailsPage.module.scss";
 
-import BookHeader from "../components/bookaPage/BookHeader";
+import BookHeader from "../components/BookHeader";
 import ChaptersList from "../components/bookaPage/ChaptersList";
 import BookActions from "../components/bookaPage/BookActions";
 

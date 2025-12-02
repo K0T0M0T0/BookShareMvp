@@ -78,14 +78,20 @@ export const deleteBook = async (req: Request, res: Response) => {
       .json({ message: "Failed to delete book", error: err.message });
   }
 };
-
 export const rateBook = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { rating } = req.body;
 
+    const parsedRating = Number(rating);
+
     // basic validation
-    if (typeof rating !== "number" || rating < 1 || rating > 5) {
+    if (
+      typeof parsedRating !== "number" ||
+      Number.isNaN(parsedRating) ||
+      parsedRating < 1 ||
+      parsedRating > 5
+    ) {
       return res
         .status(400)
         .json({ message: "Rating must be a number between 1 and 5" });
@@ -96,18 +102,23 @@ export const rateBook = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Book not found" });
     }
 
-    // 🔥 SIMPLE VERSION:
-    // last rating wins – just save to `book.rating`
-    book.rating = rating;
+    // running average: newAvg = (oldAvg * count + newRating) / (count + 1)
+    const currentAvg = book.rating ?? 0;
+    const currentCount = book.ratingsCount ?? 0;
+
+    const newCount = currentCount + 1;
+    const newAvg = (currentAvg * currentCount + parsedRating) / newCount;
+
+    book.rating = newAvg;
+    book.ratingsCount = newCount;
 
     await book.save();
     const obj = book.toObject();
 
-    res.json({
-      ...obj,
-      id: obj.id.toString(),
-    });
+    // ✅ use _id here, or just reuse mapBook
+    res.json(mapBook(obj));
   } catch (err: any) {
+    console.error("rateBook error:", err); // add this for debugging
     res
       .status(500)
       .json({ message: "Failed to rate book", error: err.message });

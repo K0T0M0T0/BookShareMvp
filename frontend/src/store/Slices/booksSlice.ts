@@ -12,6 +12,7 @@ import {
   createBook,
   updateBook,
   deleteBook,
+  rateBook as rateBookApi,
 } from "../../api/booksApi";
 
 import { addLogToServer } from "./logsSlice";
@@ -41,6 +42,7 @@ export interface Book {
   tags: string[];
   uploaderId: string | null;
   rating: number | null;
+  ratingsCount?: number;
   coverUrl?: string;
   approved?: boolean;
 }
@@ -185,15 +187,11 @@ export const rateBookOnServer = createAsyncThunk<
   Book,
   { id: string; rating: number },
   { state: RootState }
->("books/rate", async ({ id, rating }, { getState }) => {
-  const token = getState().session.token;
-  const books = await fetchAllBooks(token || null);
-  const book = books.find((b: Book) => b.id === id);
-  if (!book) throw new Error("Book not found");
-
-  const newRating = book.rating === null ? rating : (book.rating + rating) / 2;
-
-  return await updateBook(id, { ...book, rating: newRating }, token || null);
+>("books/rate", async ({ id, rating }, _thunkApi) => {
+  // apiClient already attaches token, and backend does the averaging,
+  // so we just call the dedicated endpoint:
+  const updated = await rateBookApi(id, rating);
+  return updated;
 });
 
 // Approve a book + log
