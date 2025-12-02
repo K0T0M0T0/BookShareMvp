@@ -19,6 +19,7 @@ export interface IBook extends Document {
   tags: string[];
   uploaderId: string | null;
   rating: number | null;
+  ratingsCount?: number;
   coverUrl?: string;
   approved?: boolean;
 }
@@ -52,6 +53,7 @@ const BookSchema = new Schema<IBook>(
     rating: { type: Number, default: null },
     coverUrl: { type: String },
     approved: { type: Boolean, default: false },
+    ratingsCount: { type: Number, default: false },
   },
   { timestamps: true }
 );

@@ -175,7 +175,7 @@ Purpose: Responsive, symmetric, and visually balanced navbar
     }
 
     @media (max-width: 480px) {
-      flex-direction: column;
+      //flex-direction: column;
       gap: 0.5rem;
       height: auto;
       padding: 0.5rem;

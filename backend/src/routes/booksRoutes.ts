@@ -6,6 +6,7 @@ import {
   createBook,
   updateBook,
   deleteBook,
+  rateBook,
 } from "../controllers/booksController";
 
 const router = express.Router();
@@ -13,7 +14,7 @@ const router = express.Router();
 // Public: list + single
 router.get("/", getBooks);
 router.get("/:id", getBookById);
-
+router.post("/:id/rating", protect, rateBook);
 // Logged in user can create
 router.post("/", protect, createBook);
 

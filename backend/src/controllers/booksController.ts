@@ -78,3 +78,38 @@ export const deleteBook = async (req: Request, res: Response) => {
       .json({ message: "Failed to delete book", error: err.message });
   }
 };
+
+export const rateBook = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { rating } = req.body;
+
+    // basic validation
+    if (typeof rating !== "number" || rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json({ message: "Rating must be a number between 1 and 5" });
+    }
+
+    const book = await Book.findById(id);
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    // 🔥 SIMPLE VERSION:
+    // last rating wins – just save to `book.rating`
+    book.rating = rating;
+
+    await book.save();
+    const obj = book.toObject();
+
+    res.json({
+      ...obj,
+      id: obj.id.toString(),
+    });
+  } catch (err: any) {
+    res
+      .status(500)
+      .json({ message: "Failed to rate book", error: err.message });
+  }
+};

@@ -50,7 +50,11 @@ export const createBook = async (
   });
   return mapBook(res.data);
 };
-
+// POST /api/books/:id/rating
+export async function rateBook(bookId: string, rating: number): Promise<Book> {
+  const res = await apiClient.post(`/books/${bookId}/rating`, { rating });
+  return res.data;
+}
 // PUT /api/books/:id
 export const updateBook = async (
   id: string,
