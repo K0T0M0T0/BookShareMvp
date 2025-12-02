@@ -3,9 +3,12 @@ File: src/pages/books/components/BookActions.tsx
 ========================= */
 
 import React from "react";
-import { saveBookEdit, removeBookFromServer } from "../../../store/Slices/booksSlice";
-import type { Book } from "../../../store/Slices/booksSlice";
-import { useAppDispatch } from "../../../app/hooks";
+import {
+  saveBookEdit,
+  removeBookFromServer,
+} from "../../../../store/Slices/booksSlice";
+import type { Book } from "../../../../store/Slices/booksSlice";
+import { useAppDispatch } from "../../../../app/hooks";
 
 /**
  * Provides book management actions available only to uploader:

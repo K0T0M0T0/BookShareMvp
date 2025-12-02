@@ -3,9 +3,9 @@ File: src/pages/books/components/BookHeader.tsx
 ========================= */
 
 import React from "react";
-import styles from "../../../styles/components/books/BookDetailsPage.module.scss";
-import RatingBlock from "./RatingBlock";
-import type { Book } from "../../../store/Slices/booksSlice";
+import styles from "../../../../styles/components/books/BookDetailsPage.module.scss";
+import RatingBlock from "../RatingBlock";
+import type { Book } from "../../../../store/Slices/booksSlice";
 
 /**
  * Renders the book cover, title, author, genres, and rating section.

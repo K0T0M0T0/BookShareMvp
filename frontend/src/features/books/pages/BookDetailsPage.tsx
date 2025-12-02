@@ -7,9 +7,9 @@ import { useParams } from "react-router-dom";
 import { useAppSelector } from "../../../app/hooks";
 import styles from "../../../styles/components/books/BookDetailsPage.module.scss";
 
-import BookHeader from "../components/BookHeader";
-import ChaptersList from "../components/ChaptersList";
-import BookActions from "../components/BookActions";
+import BookHeader from "../components/bookaPage/BookHeader";
+import ChaptersList from "../components/bookaPage/ChaptersList";
+import BookActions from "../components/bookaPage/BookActions";
 
 /**
  * Displays detailed information about a single book.

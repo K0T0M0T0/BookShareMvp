@@ -3,9 +3,9 @@ File: src/components/books/AddChapterForm.tsx
 ========================= */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addChapterToBook } from "../../../store/Slices/booksSlice";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import styles from "../../../styles/components/books/AddChapterForm.module.scss";
+import { addChapterToBook } from "../../../../store/Slices/booksSlice";
+import { useAppDispatch, useAppSelector } from "../../../../app/hooks";
+import styles from "../../../../styles/components/books/AddChapterForm.module.scss";
 
 export default function AddChapterForm({ bookId }: { bookId: string }) {
   const [title, setTitle] = useState("");
@@ -26,7 +26,7 @@ export default function AddChapterForm({ bookId }: { bookId: string }) {
           bookId,
           title,
           content,
-          userId: session.userId,
+          userId: session.userId || "",
         })
       ).unwrap();
       setTitle("");

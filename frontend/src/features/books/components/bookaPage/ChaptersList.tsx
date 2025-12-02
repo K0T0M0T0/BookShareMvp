@@ -5,8 +5,8 @@ File: src/pages/books/components/ChaptersList.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 import AddChapterForm from "./AddChapterForm";
-import type { Book } from "../../../store/Slices/booksSlice";
-import styles from "../../../styles/components/books/BookDetailsPage.module.scss";
+import type { Book } from "../../../../store/Slices/booksSlice";
+import styles from "../../../../styles/components/books/BookDetailsPage.module.scss";
 
 /**
  * Displays all chapters with links and creation dates.
